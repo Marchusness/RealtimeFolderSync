@@ -1,7 +1,9 @@
 #include <iostream>
+#include "engine.h"
 
 int main()
 {
-    std::cout << "Hello World!" << std::endl;
+    Engine engine;
+    engine.loop();
     return 1;
 }
