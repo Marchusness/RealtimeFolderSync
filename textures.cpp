@@ -20,6 +20,10 @@ Textures::Textures()
 
 Textures::~Textures()
 {
+    for (auto it = textures.begin(); it != textures.end(); it++)
+    {
+        delete it->second;
+    }
 }
 
 sf::Texture* Textures::getTexture(std::string name)
