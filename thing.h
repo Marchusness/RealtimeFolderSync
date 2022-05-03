@@ -1,13 +1,13 @@
 #ifndef H_THING
 #define H_THING
 #include <SFML/Graphics.hpp>
+#include <box2d/box2d.h>
 
 class Thing
 {
 public:
-	Thing();
+	Thing(b2World* world);
 	~Thing();
-
 
 	void update();
 	void draw();
@@ -18,10 +18,7 @@ public:
 
 private:
 	sf::Sprite sprite;
-	float posX;
-	float posY;
-	float velX;
-	float velY;
+	b2Body* body;
 };
 
 #endif // !H_THING
