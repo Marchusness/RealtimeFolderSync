@@ -50,3 +50,6 @@ Does block stuff, can exist in the map on its own as a thing
 - drop blocks when destroyed
 - allow grabing and draging blocks, probbaly dont set position to cursor but add velocity in the direction towards the cursor from the point grabed so they act like they should in the world
 - and more.... fuck
+
+# Stuff pushed
+- box2d works with map and things, gravity was only included as a test. in general needs to be more properly integrated and fitted to textures

@@ -11,7 +11,7 @@ Game_Singleplayer::Game_Singleplayer()
     map = new Map();
 
     //you can slap test stuff here like creating blocks and adding them to the map or something idk
-    Thing* thing = new Thing();
+    Thing* thing = new Thing(map->getWorld());
     map->addThing(thing);
 }
 
