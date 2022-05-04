@@ -35,3 +35,4 @@ sf::Texture* Textures::getTexture(std::string name)
     }
     return it->second;
 }
+

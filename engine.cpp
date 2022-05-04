@@ -1,7 +1,7 @@
 #include <iostream>
 #include "engine.h"
 #include "textures.h"
-#include "scene.h"
+#include "Scene.h"
 #include "game_singleplayer.h"
 
 Engine* Engine::engine = nullptr;

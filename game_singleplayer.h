@@ -1,7 +1,7 @@
 #ifndef H_GAME_SINGLEPLAYER
 #define H_GAME_SINGLEPLAYER
-#include <SFML/graphics.hpp>
-#include "scene.h"
+#include <SFML/Graphics.hpp>
+#include "Scene.h"
 
 class Map;
 
