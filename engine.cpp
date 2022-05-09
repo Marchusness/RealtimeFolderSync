@@ -1,8 +1,8 @@
 #include <iostream>
 #include "engine.h"
 #include "textures.h"
-#include "Scene.h"
-#include "game_singleplayer.h"
+#include "scene.h"
+#include "scene_setup.h"
 
 Engine* Engine::engine = nullptr;
 
@@ -19,7 +19,7 @@ Engine::Engine()
     textures = new Textures();
 
     window = new sf::RenderWindow(sf::VideoMode(800, 600), "Major Project", sf::Style::Titlebar | sf::Style::Close );
-    currentScene = (Scene* )new Game_Singleplayer();
+    currentScene = (Scene* )new Scene_Setup();
 
     //some magic will happen with this one
     //using funcp = Scene * (*)();

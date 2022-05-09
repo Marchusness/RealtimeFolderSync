@@ -2,12 +2,21 @@
 - Engine
 - Textures
 - Scene
-- Game_singleplayer : scene
-- Map
-- Thing
-- Ship : Thing
-- Block : Thing
-- Bullets *(plural as this will be a bullet manager)*
+- Scene_Game : Scene
+- Scene_Setup : Scene
+
+- Ship
+- AI
+- AI_ : AI
+- Weapon
+- Weapon_ : Weapon
+- Module
+- Module_ : Module
+
+- UI_Item
+- UI_Button : UI_Item
+- UI_Grid : UI_Item
+- UI_Text : UI_Item
 
 ## Engine
 Highest object, controls the current scene, can change between scenes.
@@ -21,35 +30,71 @@ A scene template to allow different scenes to be treated the same way
 ## Game_Singleplayer
 Does single player loop stuff. It would be better to get this working first as it shows more.
 
-## Map
-Controls everything moving around the map, updates there positions from velocity and draws them. Leaves Game_Singleplayer
-to make exceptions like updating the velocity of the player controlled ship. Controls bullets.
-
-## Thing
-A thing that can move and be draw to the screen
-
 ## Ship
-A ship, controls all of its blocks
-
-## Block
-Does block stuff, can exist in the map on its own as a thing
+This is the one that does the boid stuff, but it makes its desitions based off the AI object in it,
+A ship, has an array of module spots, you pass ship a shipdef containing its module structure and it builds itself accordingly
 
 
-# Stuff to do
-- setup box2d for simple box physics
-- fleshout the ship class so it can add blocks to itself and break apart and stuff
-- make ships work with box2d
-- center sprites i think
-- fleshout blocks, keep list of attachment points, free ones, blocks attached to it, and so on
-- create player controlled ship
-- add player controlled velocity based on input keys
-- add list of block types
-- probbaly create overwrites of block with different types like 1x2 structual and guns, maincontrol block, idk
-- simple enermy ai, turn towards player and shoot
-- spawn enermy ships in the world
-- drop blocks when destroyed
-- allow grabing and draging blocks, probbaly dont set position to cursor but add velocity in the direction towards the cursor from the point grabed so they act like they should in the world
-- and more.... fuck
+## AI
+ship passes this object the stuff it needs and it makes the desition where to go. This is a seperate class from boid so you can make
+the boids make different desitions like if it wants to protect its own ships or charge the enermy without having a hundred ship classes
 
-# Stuff pushed
-- box2d works with map and things, gravity was only included as a test. in general needs to be more properly integrated and fitted to textures
+## AI_
+also AI is a template so each diffent ones name is added after the _
+
+## Weapon
+basic weapon template, takes in a type and a size, sizes of weapon small medium and large arnt going to be different classes becuase there
+too similar, just stat multipliers
+
+## Weapon_
+each unique weapon has a different way of firing and doing stuff so it gets its own derived class
+
+## Module
+basic module template
+
+## Module_
+modules can be stuff like sheilds, armour, anti-missile point deffence, reactors, that stuff, again does stat modifiers and maybe
+requires updates each loop
+
+
+
+## UI_Item
+a item that can be drawn, has children, positions them somehow, a size, something like that. has a color or a backgorund?
+
+## UI_Button
+an item with text and can be clicked, does click event stuff
+
+## UI_Grid
+positions children in a grid with set rows and colums, or ajustable rows and columns
+
+## UI_Text
+has text inside of it, draws said text, cool right
+
+## UI_InputFeild
+its an input feild
+
+
+# Timeline
+- setup seperate scenes
+- **game**
+	- setup ship to work with ai
+	- ai settings structs
+	- make simple boid ai that takes struct and does stuff
+	- make boids do boid things
+	- make boids shoot at other boids
+	- make boids die
+	- boid base stats
+	- make get armour modules working with boids
+	- get reactor modules working with boids
+	- add other weapons and modules
+- **setup menu**
+	- get item working
+	- get text working
+	- get buttons working
+	- make simple menu where you can add ship types to your fleet
+	- get click and drag working
+	- customise modules in ships
+	- get input feilds working
+	- cusstomise ship ai settings with input feilds
+
+ok i may have made this larger than sessasary
