@@ -1,6 +1,7 @@
 x64/
 .vs/
 
+*.dll
 *.sln
 *.vcxproj
 *.filters
