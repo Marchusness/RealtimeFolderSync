@@ -1,11 +1,5 @@
-x64/
-.vs/
+.vscode/
 
 *.dll
-*.sln
-*.vcxproj
-*.filters
-*.user
-*.lib
 *.o
 *.gch
