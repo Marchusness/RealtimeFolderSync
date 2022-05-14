@@ -2,15 +2,17 @@
 #include <string.h>
 #include <filesystem>
 #include <unordered_map>
+#include <thread>
 
 #include "FileWatcher.h"
+#include "FileStatus.h"
 
 FileWatcher::FileWatcher(std::string _dirPath, std::chrono::duration<int, std::milli> _delay){
     dirToWatch = _dirPath;
     delay = _delay;
 }
 
-void FileWatcher::startWatching() {
+void FileWatcher::startWatching(const std::function<void (std::string, FileStatus)> &action) {
     watching = true;
     while(watching) {
         // Wait for "delay" milliseconds
@@ -19,8 +21,7 @@ void FileWatcher::startWatching() {
         auto it = files.begin();
         while (it != files.end()) {
             if (!std::filesystem::exists(it->first)) {
-                std::cout << "File Erased" << std::endl;
-                // action(it->first, FileStatus::erased);
+                action(it->first, FileStatus::erased);
                 it = files.erase(it);
             }
             else {
@@ -33,15 +34,11 @@ void FileWatcher::startWatching() {
 
             if(!contains(file.path().string())) {
                 files[file.path().string()] = current_file_last_write_time;
-                std::cout << "File Created" << std::endl;
-
-                // action(file.path().string(), FileStatus::created);
+                action(file.path().string(), FileStatus::created);
             } else {
                 if(files[file.path().string()] != current_file_last_write_time) {
                     files[file.path().string()] = current_file_last_write_time;
-                    std::cout << "File Modified" << std::endl;
-
-                    // action(file.path().string(), FileStatus::modified);
+                    action(file.path().string(), FileStatus::modified);
                 }
             }
         }
