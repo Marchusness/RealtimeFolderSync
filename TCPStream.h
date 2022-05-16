@@ -1,29 +1,26 @@
 #ifndef H_TCPSTREAM
 #define H_TCPSTREAM
 
-#include <stdio.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
+class TCPListener;
 
 class TCPStream
 {
+    friend TCPListener;
+    
 private:
-    /* data */
+    int sockfd; //socket file descriptor
+
+    TCPStream(int sockfd);
+
 public:
-    TCPStream(/* args */);
+    const int BUFFERMAX = 1024;
+
+    static TCPStream* connectTo(const char*, int port);
+
     ~TCPStream();
+
+    int write(void* buff, int len);
+    int read(void* buff);
 };
-
-TCPStream::TCPStream(/* args */)
-{
-}
-
-TCPStream::~TCPStream()
-{
-}
-
-
-
 
 #endif

@@ -59,6 +59,7 @@ int main(int argc, char const *argv[])
         printf("Here is the message: %s",buffer);
         return 1;
     } 
+    printf("message: %s",buffer);
 
     n = write(newsockfd,buffer,256);
     if (n < 0)
