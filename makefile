@@ -1,8 +1,6 @@
-all: main.o
-	g++ main.o -o main
-
-main.o: main.cpp
-	g++ -c main.cpp
+networkingTests: testserver.cpp testclient.cpp
+	g++ testserver.cpp -o server
+	g++ testclient.cpp -o client
 
 clean:
-	rm *.o main
+	rm server client
