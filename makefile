@@ -1,8 +1,8 @@
-networkingTests: testserver.cpp testclient.cpp ntestmain.cpp TCPStream.cpp TCPListener.cpp
-	g++ testserver.cpp -o server
-	g++ testclient.cpp -o client
-	g++ ntestmain.cpp TCPStream.cpp -o nmain
-	g++ ntestserver.cpp TCPStream.cpp TCPListener.cpp -o nserver
+networkingTests: 
+	g++ testclient.cpp TCPStream.cpp PacketTypes.cpp Packet.cpp -o client
+	g++ testserver.cpp TCPStream.cpp TCPListener.cpp PacketTypes.cpp Packet.cpp -o server
+	g++ unitTest.cpp Packet.cpp TCPStream.cpp PacketTypes.cpp -o unitTest
+	./unitTest
 
 clean:
-	rm server client nmain nserver
+	rm server client unitTest

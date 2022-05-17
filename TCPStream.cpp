@@ -10,6 +10,9 @@
 #include <unistd.h>
 
 #include "TCPStream.h"
+#include "Packet.h"
+#include "PacketTypes.h"
+
 
 TCPStream::TCPStream(int sockfd)
 {
@@ -18,6 +21,8 @@ TCPStream::TCPStream(int sockfd)
 
 TCPStream::~TCPStream()
 {
+    Packet_Closed* p = new Packet_Closed();
+    write((Packet*)p);
     ::close(sockfd);
 }
 
@@ -28,7 +33,6 @@ TCPStream* TCPStream::connectTo(const char* ip, int port)
     struct hostent *server;
     
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    //fcntl(sockfd, F_SETFL, O_NONBLOCK);
 
     if (sockfd < 0)
     {
@@ -45,7 +49,7 @@ TCPStream* TCPStream::connectTo(const char* ip, int port)
 
     memset(&serv_addr, 0, sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
-    memcpy((char *)server->h_addr, (char *)&serv_addr.sin_addr.s_addr, server->h_length); //i think this copies the ip as a cstring but idfk
+    memcpy((char *)server->h_addr, (char *)&serv_addr.sin_addr.s_addr, server->h_length);
     serv_addr.sin_port = htons(port);
 
     if (connect(sockfd, (sockaddr*)&serv_addr, sizeof(serv_addr)) < 0) //idk where the adress goes when casting
@@ -53,6 +57,7 @@ TCPStream* TCPStream::connectTo(const char* ip, int port)
         fprintf(stderr, "ERROR connecting\n");
         return nullptr;
     }
+    fcntl(sockfd, F_SETFL, O_NONBLOCK);
     return new TCPStream(sockfd);
 }
 
@@ -61,7 +66,64 @@ int TCPStream::write(void* buf, int len)
     return ::write(sockfd, buf, len);
 }
 
-int TCPStream::read(void* buf)
+int TCPStream::read(void* buf, int len)
 {
-    return ::read(sockfd, buf, BUFFERMAX);
+    return ::read(sockfd, buf, len);
+}
+
+void TCPStream::write(Packet* packet)
+{
+    char* data = packet->toByteArray();
+    unsigned int length = packet->getDataSize();
+    unsigned int dataWritten = 0;
+    while (dataWritten < length)
+    {
+        dataWritten += write(data + dataWritten, length - dataWritten);
+    }
+}
+
+Packet* TCPStream::tryReadPacket()
+{
+    char buf[1];            //still need a char array type
+    if (read(buf, 1) == 1)
+    {
+        Packet* p;
+        //identify type
+        char type = buf[0];
+        if (type == 0)
+        {
+            std::cerr << "eh?" << std::endl;
+            return nullptr;
+        }
+        else if (type == 1)
+        {
+            p = new Packet_Closed(this);
+        }
+        else if (type == 2)
+        {
+            p = new Packet_WriteFile(this);
+        }
+        else if (type == 3)
+        {
+            return nullptr; //no class yet 
+        }
+        else if (type == 4)
+        {
+            p = new Packet_GetPaths(this);
+        }
+        else if (type == 5)
+        {
+            p = new Packet_UpdatePaths(this);
+        }
+        else
+        {
+            return nullptr;
+        }
+        
+        if (p->read())
+        {
+            return p;
+        }
+    }
+    return nullptr;
 }
