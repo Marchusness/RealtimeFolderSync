@@ -3,6 +3,9 @@
 #include "PacketTypes.h"
 #include "TCPStream.h"
 #include "Packet.h"
+#include "Engine.h"
+#include "FileManager.h"
+#include "FileWatcher.h"
 
 Packet_Closed::Packet_Closed(TCPStream* stream) : Packet(stream, 1)
 {
@@ -30,7 +33,7 @@ Packet_WriteFile::~Packet_WriteFile()
     delete[] file;
 }
 
-void Packet_WriteFile::exicute()
+void Packet_WriteFile::exicute(Engine* engine)
 {
 
 }
@@ -47,10 +50,11 @@ Packet_GetPaths::~Packet_GetPaths()
 {
 }
 
-void Packet_GetPaths::exicute()
+//gets all the files being watched and sends them back to the socket that asked
+void Packet_GetPaths::exicute(Engine* engine)
 {
-    std::cout << "please give me the paths i require" << std::endl;
     Packet_UpdatePaths* p = new Packet_UpdatePaths();
+    p->paths = engine->fileWatcher->getPaths();
     stream->write((Packet*)p);
 }
 
@@ -69,11 +73,14 @@ Packet_UpdatePaths::~Packet_UpdatePaths()
 
 char* Packet_UpdatePaths::toByteArray()
 {
-    unsigned int numPaths = 1;
-    std::string aFile("/some/path/idk.txt");
+    unsigned int numPaths;
+    unsigned int len = paths.size();
+    addToByteArray(&len, sizeof(len));
+    for (auto file : paths)
+    {
+        addToByteArray(file);
+    }
 
-    addToByteArray(&numPaths, sizeof(numPaths));
-    addToByteArray(aFile);
     writeHeader();
     return data;
 }
@@ -95,7 +102,7 @@ bool Packet_UpdatePaths::read()
     return true;
 }
 
-void Packet_UpdatePaths::exicute()
+void Packet_UpdatePaths::exicute(Engine* engine)
 {
     for (std::string path : paths)
     {

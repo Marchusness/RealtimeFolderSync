@@ -5,6 +5,8 @@
 #include <string>
 #include "Packet.h"
 
+class Engine;
+
 //used to tell the listener or reader that this stream has been closed
 class Packet_Closed : public Packet //1
 {
@@ -26,7 +28,7 @@ public:
     Packet_WriteFile();                     //going to be sent on socket constructor
     ~Packet_WriteFile();
 
-    void exicute();
+    void exicute(Engine* engine);
 };
 
 //requests folder paths
@@ -37,14 +39,13 @@ public:
     Packet_GetPaths();
     ~Packet_GetPaths();
 
-    void exicute();
+    void exicute(Engine* engine);
 };
 
 //updates folder paths
 class Packet_UpdatePaths : public Packet //5
 {
 private:
-    std::vector<std::string> paths;
 
 public:
     Packet_UpdatePaths(TCPStream* stream);
@@ -53,7 +54,9 @@ public:
 
     char* toByteArray();
     bool read();
-    void exicute();
+    void exicute(Engine* engine);
+    
+    std::vector<std::string> paths;
 };
 
 #endif

@@ -60,3 +60,13 @@ FileWatcher::action FileWatcher::getAction()
         return a;
     }
 }
+
+std::vector<std::string> FileWatcher::getPaths()
+{
+    std::vector<std::string> filePaths;
+    for (auto it : files)
+    {
+        filePaths.push_back(it.first);
+    }
+    return filePaths;
+}

@@ -16,6 +16,7 @@
 */
 
 class TCPStream;
+class Engine;
 
 class Packet
 {
@@ -34,7 +35,7 @@ public:
 
     void writeHeader();             //write type and size header
     virtual char* toByteArray();    //convert packet to byte array
-    virtual void exicute();         //do whatever the packet does
+    virtual void exicute(Engine*);  //do whatever the packet does
     virtual bool read();            //read the byte array to packet data
 
     //getters

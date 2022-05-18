@@ -14,7 +14,7 @@ int main(int argc, char const *argv[])
         Packet* p;
         while (p = t.getPacketInQueue())
         {
-            p->exicute();//may have to pass this function some pointers im not sure yet
+            p->exicute(nullptr);//may have to pass this function some pointers im not sure yet
         }
 
         std::this_thread::sleep_for(std::chrono::milliseconds(100));

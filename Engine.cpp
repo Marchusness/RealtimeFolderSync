@@ -62,10 +62,9 @@ void Engine::loop()
         Packet* p;
         while (p = getPacket())
         {
-            p->exicute();
-            std::cout << "received a packet" << std::endl;
+            p->exicute(this);
         }
-        
+
         //pause
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }

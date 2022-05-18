@@ -20,7 +20,8 @@ public:
     FileWatcher(std::string dirPath);
 
     bool check();
-    action getAction();
+    action getAction(); 
+    std::vector<std::string> getPaths();
 
 private:
     std::string dirToWatch;
