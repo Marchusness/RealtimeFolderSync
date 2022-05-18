@@ -16,8 +16,8 @@ public:
     FileWatcher* fileWatcher;
     FileManager* fileManager;
 
-    Engine(int port);
-    Engine(int port, std::string adress);
+    Engine(std::string path, int port);
+    Engine(std::string syncPath, int port, std::string address);
     ~Engine();
 
     void loop();

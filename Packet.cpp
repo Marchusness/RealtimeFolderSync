@@ -129,5 +129,5 @@ void Packet::readFromByteArray(std::string& string)
     readFromByteArray(cstring, length);
     cstring[length] = '\0';
     string = std::string(cstring);
-    delete cstring;
+    delete[] cstring;
 }

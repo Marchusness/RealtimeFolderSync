@@ -43,7 +43,7 @@ char* Packet_WriteFile::toByteArray()
 
 bool Packet_WriteFile::read()
 {
-    if (!Packet::read)
+    if (!Packet::read())
     {
         return false;
     }

@@ -8,15 +8,20 @@
 #include "TCPListener.h"
 #include "TCPStream.h"
 #include "Packet.h"
+#include "PacketTypes.h"
 
-Engine::Engine(int port)
+Engine::Engine(std::string syncPath, int port)
 {
     tCPListener = new TCPListener(port);
+    fileWatcher = new FileWatcher(syncPath);
+    fileManager = new FileManager(syncPath);
 }
 
-Engine::Engine(int port, std::string address)
+Engine::Engine(std::string syncPath, int port, std::string address)
 {
     tCPStream = TCPStream::connectTo(address.c_str(), port);
+    fileWatcher = new FileWatcher(syncPath);
+    fileManager = new FileManager(syncPath);
 }
 
 Engine::~Engine()
@@ -35,9 +40,9 @@ Engine::~Engine()
 
 void Engine::loop()
 {
-    if (!(tCPListener || tCPStream)) //check connected
+    //if (!(tCPListener || tCPStream)) //check connected
     {
-        return;
+     //   return;
     }
     
     bool running;
@@ -49,7 +54,11 @@ void Engine::loop()
         while ((a = fileWatcher->getAction()).action != FileStatus::none)
         {
             //a change occoured
-            std::cout << "file change" << std::endl;
+            if (a.action == FileStatus::created || a.action == FileStatus::modified)
+            {
+                std::string filedata = fileManager->getFileData(a.path);
+                Packet_WriteFile* p = new Packet_WriteFile(a.path, filedata);
+            }
         }
         
 
@@ -60,7 +69,7 @@ void Engine::loop()
         }
         
         Packet* p;
-        while (p = getPacket())
+        while ((p = getPacket()))
         {
             p->exicute(this);
         }

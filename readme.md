@@ -21,3 +21,8 @@ Syncs folders realtime
 - less memory leaks
 - more user friendly
 - secureity
+
+
+client needs to ask for paths, and then ask for each file from the server
+when a file is changed the client needs to send a write file to the server, and the server needs to send it to all clients
+send to all needs to be abke to exclude a sttream

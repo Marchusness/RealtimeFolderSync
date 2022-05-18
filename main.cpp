@@ -3,22 +3,21 @@
 
 int main(int argc, char const *argv[])
 {
-    if (argc < 2)
-    {
-        std::cout << "needs atleast a port" << std::endl;
-    }
-    int port = 0;
-    std::cin >> port;
-    Engine* engine;
     if (argc < 3)
     {
-        engine = new Engine(port);
+        std::cout << "needs <Sync path> <Port> <address>" << std::endl;
+    }
+    std::string syncPath = argv[1];
+    int port = std::stoi(argv[2]);
+    Engine* engine;
+    if (argc < 4)
+    {
+        engine = new Engine(syncPath, port);
     }
     else
     {
-        std::string address;
-        std::cin >> address; 
-        engine = new Engine(port, address);
+        std::string address = argv[3];
+        engine = new Engine(syncPath, port, address);
     }
     engine->loop();
     delete engine;

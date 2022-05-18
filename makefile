@@ -1,16 +1,12 @@
 CC = g++
+CFLAGS = -c
+DEBUG = -g
 
-TARGET = main
-OBJ := Packet PacketTypes TCPListener TCPStream
+# clean:
+# 	rm server client unitTest
 
-all: $(TARGET)
-
-$(OBJ).o : $(OBJ).cpp
-    $(CC) -c $(OBJ).cpp -o $(OBJ).o
-
-$(TARGET): Packet.o PacketTypes.o TCPListener.o TCPStream.o
-	$(CC) Packet.o PacketTypes.o TCPListener.o TCPStream.o -o $(TARGET)
+run : FileWatcher.cpp
+	$(CC) -std=c++20 main.cpp Engine.cpp FileWatcher.cpp FileManager.cpp TCPStream.cpp TCPListener.cpp PacketTypes.cpp Packet.cpp -o run
 
 clean:
-	rm main
-	rm -f *.o
+	rm run

@@ -100,3 +100,14 @@ void TCPListener::sendToAll(Packet* p)
         stream->write(p);
     }
 }
+
+void TCPListener::sendToAll(Packet* p, TCPStream* nstream)
+{
+    for (TCPStream* stream : streams)
+    {
+        if (stream != nstream)
+        {
+            stream->write(p);
+        }
+    }
+}
