@@ -1,8 +1,16 @@
-networkingTests: 
-	g++ testclient.cpp TCPStream.cpp PacketTypes.cpp Packet.cpp -o client
-	g++ testserver.cpp TCPStream.cpp TCPListener.cpp PacketTypes.cpp Packet.cpp -o server
-	g++ unitTest.cpp Packet.cpp TCPStream.cpp PacketTypes.cpp -o unitTest
-	./unitTest
+CC = g++
+
+TARGET = main
+OBJ := Packet PacketTypes TCPListener TCPStream
+
+all: $(TARGET)
+
+$(OBJ).o : $(OBJ).cpp
+    $(CC) -c $(OBJ).cpp -o $(OBJ).o
+
+$(TARGET): Packet.o PacketTypes.o TCPListener.o TCPStream.o
+	$(CC) Packet.o PacketTypes.o TCPListener.o TCPStream.o -o $(TARGET)
 
 clean:
-	rm server client unitTest
+	rm main
+	rm -f *.o
