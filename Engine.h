@@ -22,6 +22,7 @@ public:
 
     void loop();
 
+    //this will be improved version 2
     void sendPacket(Packet* p); //used to bridge listener and stream
     Packet* getPacket();
 };

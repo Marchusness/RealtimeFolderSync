@@ -19,6 +19,7 @@ public:
 
     void check();               //checks for packets from sockets
     Packet* getPacketInQueue(); //gets the next packet in queue or nullptr
+    void sendToAll(Packet* p);  //sends a packet to all streams
 };
 
 #endif

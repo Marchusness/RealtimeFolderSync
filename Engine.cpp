@@ -1,9 +1,13 @@
+#include <chrono>
+#include <thread>
+
 #include "Engine.h"
 #include "FileManager.h"
 #include "FileWatcher.h"
 #include "FileStatus.h"
 #include "TCPListener.h"
-#include "TCPStream.h"s
+#include "TCPStream.h"
+#include "Packet.h"
 
 Engine::Engine(int port)
 {
@@ -45,10 +49,48 @@ void Engine::loop()
         while ((a = fileWatcher->getAction()).action != FileStatus::none)
         {
             //a change occoured
+            std::cout << "file change" << std::endl;
         }
         
 
         //do networking checks
+        if (tCPListener)
+        {
+            tCPListener->check();
+        }
+        
+        Packet* p;
+        while (p = getPacket())
+        {
+            p->exicute();
+            std::cout << "received a packet" << std::endl;
+        }
+        
+        //pause
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+}
 
+void Engine::sendPacket(Packet* p)
+{
+    if (tCPListener)
+    {
+        tCPListener->sendToAll(p);
+    }
+    else
+    {
+        tCPStream->write(p);
+    }
+}
+
+Packet* Engine::getPacket()
+{
+    if (tCPListener)
+    {
+        return tCPListener->getPacketInQueue();
+    }
+    else
+    {
+        return tCPStream->tryReadPacket();
     }
 }

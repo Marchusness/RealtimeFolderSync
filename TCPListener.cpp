@@ -92,3 +92,11 @@ Packet* TCPListener::getPacketInQueue()
     }
     return nullptr;
 }
+
+void TCPListener::sendToAll(Packet* p)
+{
+    for (TCPStream* stream : streams)
+    {
+        stream->write(p);
+    }
+}
