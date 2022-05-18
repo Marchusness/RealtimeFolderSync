@@ -52,29 +52,6 @@ int main(int argc, char const *argv[])
         delete p1;
         delete p2;
     }
-    //test reading and writing char arrays from data array
-    {
-        char* in = (char*)"The input";
-        Packet* p1 = new Packet(10, INITIALPACKETSIZE + ( sizeof(char) * 10 ));
-
-        p1->addToByteArray(&in, sizeof(char) * 10);
-        p1->writeHeader();
-
-        char* p1data = p1->getDataArray();
-
-        Packet* p2 = new Packet(p1data, 10, p1->getDataSize());
-        char* out = new char[10];
-        p2->readFromByteArray(&out, sizeof(char) * 10);
-
-        if (strcmp(in, out))
-        {
-            std::cout << "failed to read and write cstring from data array\n";
-            std::cout << "in " << in << " out " << out << std::endl;
-        }
-
-        delete p1;
-        delete p2;
-    }
     //test reading and writing strings from data array
     {
         std::string in = "the input";
