@@ -31,7 +31,7 @@ bool FileWatcher::check() {
     for(auto &file : std::filesystem::recursive_directory_iterator(dirToWatch)) {
         auto current_file_last_write_time = std::filesystem::last_write_time(file);
 
-        if(files.find(file.path().string()) != files.end()) {
+        if(files.find(file.path().string()) == files.end()) {
             files[file.path().string()] = current_file_last_write_time;
             action a;
             a.path = file.path().string();

@@ -18,6 +18,8 @@ FileManager::FileManager(std::string _dirPath){
 // }
 
 void FileManager::writeFile(std::string _path, std::string _data) {
+    std::cout << "writing file func " << _path << std::endl;
+    std::cout << _data << std::endl;
     std::string path = _path;
     path.erase(0,1);
     path = dirPath + path;

@@ -40,12 +40,12 @@ Engine::~Engine()
 
 void Engine::loop()
 {
-    //if (!(tCPListener || tCPStream)) //check connected
+    if (!(tCPListener || tCPStream)) //check connected
     {
-     //   return;
+        return;
     }
     
-    bool running;
+    bool running = true;
     while (running)
     {
         //do file checks
@@ -53,11 +53,15 @@ void Engine::loop()
         FileWatcher::action a;
         while ((a = fileWatcher->getAction()).action != FileStatus::none)
         {
+            std::cout << "file changed" << std::endl;
             //a change occoured
             if (a.action == FileStatus::created || a.action == FileStatus::modified)
             {
+                std::cout << "sending changed file" << std::endl;
                 std::string filedata = fileManager->getFileData(a.path);
+                std::cout << filedata << std::endl;
                 Packet_WriteFile* p = new Packet_WriteFile(a.path, filedata);
+                sendPacket((Packet*)p);
             }
         }
         
@@ -71,6 +75,7 @@ void Engine::loop()
         Packet* p;
         while ((p = getPacket()))
         {
+            std::cout << "received packet of type "<< (int)p->getType() << std::endl;
             p->exicute(this);
         }
 
