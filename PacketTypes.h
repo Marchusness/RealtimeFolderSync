@@ -20,14 +20,31 @@ public:
 class Packet_WriteFile : public Packet //2
 {
 private:
-    char* path;
-    char* file;
+    std::string path;
+    std::string filedata;
 
 public:
     Packet_WriteFile(TCPStream* stream);    //read from socket constructor
-    Packet_WriteFile();                     //going to be sent on socket constructor
+    Packet_WriteFile(std::string path, std::string data);                     //going to be sent on socket constructor
     ~Packet_WriteFile();
 
+    char* toByteArray();
+    bool read();
+    void exicute(Engine* engine);
+};
+
+//request a file
+class Packet_RequestFile : public Packet //3
+{
+private:
+    std::string path;
+public:
+    Packet_RequestFile(TCPStream* stream);
+    Packet_RequestFile(std::string path);
+    ~Packet_RequestFile();
+
+    char* toByteArray();
+    bool read();
     void exicute(Engine* engine);
 };
 
@@ -45,8 +62,6 @@ public:
 //updates folder paths
 class Packet_UpdatePaths : public Packet //5
 {
-private:
-
 public:
     Packet_UpdatePaths(TCPStream* stream);
     Packet_UpdatePaths();
@@ -55,7 +70,7 @@ public:
     char* toByteArray();
     bool read();
     void exicute(Engine* engine);
-    
+
     std::vector<std::string> paths;
 };
 

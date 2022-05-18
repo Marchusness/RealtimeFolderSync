@@ -23,19 +23,79 @@ Packet_WriteFile::Packet_WriteFile(TCPStream* stream) : Packet(stream, 2)
 {
 }
 
-Packet_WriteFile::Packet_WriteFile() : Packet(2, 0)
+Packet_WriteFile::Packet_WriteFile(std::string path, std::string filedata) : Packet(2, path.size() + filedata.size() + INITIALPACKETSIZE + 10)
 {
+    this->path = path;
+    this->filedata = filedata;
 }
 
 Packet_WriteFile::~Packet_WriteFile()
 {
-    delete[] path;
-    delete[] file;
+}
+
+char* Packet_WriteFile::toByteArray()
+{
+    addToByteArray(path);
+    addToByteArray(filedata);
+    writeHeader();
+    return data;
+}
+
+bool Packet_WriteFile::read()
+{
+    if (!Packet::read)
+    {
+        return false;
+    }
+    readFromByteArray(path);
+    readFromByteArray(filedata);
+
+    return true;
 }
 
 void Packet_WriteFile::exicute(Engine* engine)
 {
+    engine->fileManager->writeFile(path, filedata);
+}
 
+Packet_RequestFile::Packet_RequestFile(TCPStream* stream) : Packet(stream, 3)
+{
+}
+
+Packet_RequestFile::Packet_RequestFile(std::string path) : Packet(3, 50)
+{
+    this->path = path;
+}
+
+Packet_RequestFile::~Packet_RequestFile()
+{
+}
+
+char* Packet_RequestFile::toByteArray()
+{
+    addToByteArray(path);
+    writeHeader();
+    return data;
+}
+
+bool Packet_RequestFile::read()
+{
+    if (!Packet::read())
+    {
+        return false;
+    }
+    readFromByteArray(path);
+    return true;
+}
+
+void Packet_RequestFile::exicute(Engine* engine)
+{
+    //read file
+    std::string fileData = engine->fileManager->getFileData(path);
+    //send file back
+    Packet_WriteFile* p = new Packet_WriteFile(path, fileData);
+    stream->write((Packet*)p);
+    delete p;
 }
 
 Packet_GetPaths::Packet_GetPaths(TCPStream* stream) : Packet(stream, 4)
@@ -56,6 +116,7 @@ void Packet_GetPaths::exicute(Engine* engine)
     Packet_UpdatePaths* p = new Packet_UpdatePaths();
     p->paths = engine->fileWatcher->getPaths();
     stream->write((Packet*)p);
+    delete p;
 }
 
 
