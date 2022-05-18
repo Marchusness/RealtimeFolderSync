@@ -3,30 +3,30 @@
 #include <iostream>
 #include <string>
 #include <filesystem>
+#include <vector>
 #include <unordered_map>
+#include <queue>
 
 #include "FileStatus.h"
 
 
 class FileWatcher {
 public:
-    FileWatcher(std::string dirPath, std::chrono::duration<int, std::milli> delay);
+    struct action {
+        std::string path;
+        FileStatus action;
+    };
 
-    void startWatching(const std::function<void (std::string, FileStatus)> &action);
+    FileWatcher(std::string dirPath);
 
-    void stopWatching();
+    bool check();
+    action getAction();
 
 private:
     std::string dirToWatch;
-    bool watching = true;
-    std::chrono::duration<int, std::milli> delay;
+    std::queue<action> changes;
 
     std::unordered_map<std::string, std::filesystem::file_time_type> files;
-
-    bool contains(const std::string &key) {
-        auto el = files.find(key);
-        return el != files.end();
-    }
 };
 
 #endif
