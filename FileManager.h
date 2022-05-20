@@ -2,6 +2,7 @@
 #define FILEMANAGER_H
 #include <iostream>
 #include <string.h>
+#include "FileWatcher.h"
 
 class FileManager {
 public:
@@ -9,7 +10,7 @@ public:
 
     // FileManager(std::string baseDirPath, std::string zipFilePath);
 
-    void writeFile(std::string path, std::string data);
+    void writeFile(std::string path, std::string data, FileWatcher* fw);
 
     std::string getFileData(std::string path);
 

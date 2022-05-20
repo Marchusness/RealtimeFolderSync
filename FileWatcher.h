@@ -23,6 +23,8 @@ public:
     action getAction(); 
     std::vector<std::string> getPaths();
 
+    void updateFileTimes(std::string);
+
 private:
     std::string dirToWatch;
     std::queue<action> changes;

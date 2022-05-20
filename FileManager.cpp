@@ -17,20 +17,38 @@ FileManager::FileManager(std::string _dirPath){
 //     zip *z = zip_open("foo.zip", 0, &err);
 // }
 
-void FileManager::writeFile(std::string _path, std::string _data) {
-    std::cout << "writing file func " << _path << std::endl;
-    std::cout << _data << std::endl;
+void FileManager::writeFile(std::string _path, std::string _data, FileWatcher* fw) {
     std::string path = _path;
     path.erase(0,1);
     path = dirPath + path;
+    std::cout << "writing file func " << path << std::endl;
+
+
+    std::string directory = "";
+    std::string temp = "";
+    for(unsigned i = 0; i < path.length(); i++) {
+        if (path.at(i) == '/') {
+            directory += temp;
+            std::filesystem::create_directory(directory);
+            temp = "";
+        }
+        temp += path.at(i);
+    }
+
     std::ofstream myfile;
     myfile.open (path);
     myfile << _data;
     myfile.close();
+
+    fw->updateFileTimes(path);
+
 }
 
 std::string FileManager::getFileData(std::string _path) {
-    std::ifstream file (_path);
+    std::string path = _path;
+    path.erase(0,1);
+    path = dirPath + path;
+    std::ifstream file (path);
     std::string data = "";
     if ( file.is_open() ) {
         char mychar;
@@ -38,6 +56,7 @@ std::string FileManager::getFileData(std::string _path) {
             data += file.get();
         }
     }
+    data.pop_back();
     return data;
 }
 
