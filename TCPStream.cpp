@@ -49,14 +49,16 @@ TCPStream* TCPStream::connectTo(const char* ip, int port)
 
     memset(&serv_addr, 0, sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
-    memcpy((char *)server->h_addr, (char *)&serv_addr.sin_addr.s_addr, server->h_length);
+    memcpy((char *)&serv_addr.sin_addr.s_addr, (char *)server->h_addr, server->h_length);
     serv_addr.sin_port = htons(port);
 
     if (connect(sockfd, (sockaddr*)&serv_addr, sizeof(serv_addr)) < 0) //idk where the adress goes when casting
     {
         fprintf(stderr, "ERROR connecting\n");
+        fprintf(stderr, "%d %s\n", errno, strerror(errno));
         return nullptr;
     }
+
     fcntl(sockfd, F_SETFL, O_NONBLOCK);
     return new TCPStream(sockfd);
 }

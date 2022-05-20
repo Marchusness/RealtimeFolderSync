@@ -2,12 +2,12 @@ CC = g++
 OBJFOLDER = obj
 CPPVER = -std=c++2a
 FILES := $(wildcard main.cpp Engine.cpp Packet.cpp PacketTypes.cpp TCPListener.cpp TCPStream.cpp FileManager.cpp FileWatcher.cpp)
-objects := $(patsubst %.cpp,$(OBJFOLDER)/%.o,$(FILES))
+OBJECTS := $(patsubst %.cpp,$(OBJFOLDER)/%.o,$(FILES))
 #objects := $(patsubst %.cpp,$(OBJFOLDER)/%.o,$(wildcard *.cpp)) all cpp files in directory
 
-foo : $(objects)
+all : $(OBJECTS)
 	@echo linking
-	@$(CC) $(CPPVER) $(objects) -o main
+	@$(CC) $(CPPVER) $(OBJECTS) -o main
 
 $(OBJFOLDER)/main.o: main.cpp
 	@echo building main

@@ -46,6 +46,7 @@ TCPListener::~TCPListener()
     {
         delete stream;
     }
+    shutdown(lisfd, SHUT_RDWR);
 }
 
 void TCPListener::check()
@@ -61,6 +62,7 @@ void TCPListener::check()
         TCPStream* s = new TCPStream(newsockfd);
         streams.push_back(s);
     }
+    
     //check for data from existnig connections
     for (int i = 0; i < streams.size(); i++)
     {
