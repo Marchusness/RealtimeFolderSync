@@ -6,6 +6,7 @@ int main(int argc, char const *argv[])
     if (argc < 3)
     {
         std::cout << "needs <Sync path> <Port> <address>" << std::endl;
+        return 1;
     }
     std::string syncPath = argv[1];
     int port = std::stoi(argv[2]);
