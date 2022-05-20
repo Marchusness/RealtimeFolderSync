@@ -55,7 +55,7 @@ bool Packet_WriteFile::read()
 
 void Packet_WriteFile::exicute(Engine* engine)
 {
-    engine->fileManager->writeFile(path, filedata);
+    engine->fileManager->writeFile(path, filedata, engine->fileWatcher);
 }
 
 Packet_RequestFile::Packet_RequestFile(TCPStream* stream) : Packet(stream, 3)
