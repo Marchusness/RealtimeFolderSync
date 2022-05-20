@@ -4,13 +4,15 @@
 #include <string.h>
 #include "FileWatcher.h"
 
+class Engine;
+
 class FileManager {
 public:
-    FileManager(std::string dirPath);
+    FileManager(Engine* engine, std::string dirPath);
 
     // FileManager(std::string baseDirPath, std::string zipFilePath);
 
-    void writeFile(std::string path, std::string data, FileWatcher* fw);
+    void writeFile(std::string path, std::string data);
 
     std::string getFileData(std::string path);
 
@@ -18,6 +20,7 @@ public:
 
 private:
     std::string dirPath;
+    Engine* engine;
 };
 
 #endif

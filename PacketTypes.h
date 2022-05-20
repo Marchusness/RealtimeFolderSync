@@ -74,4 +74,19 @@ public:
     std::vector<std::string> paths;
 };
 
+//delete file
+class Packet_DeletePath : public Packet //6
+{
+public:
+    Packet_DeletePath(TCPStream* stream);
+    Packet_DeletePath(std::string path);
+    ~Packet_DeletePath();
+
+    char* toByteArray();
+    bool read();
+    void exicute(Engine* engine);
+
+    std::string path;
+};
+
 #endif

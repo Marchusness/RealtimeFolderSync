@@ -7,7 +7,8 @@
 #include "FileWatcher.h"
 #include "FileStatus.h"
 
-FileWatcher::FileWatcher(std::string _dirPath){
+FileWatcher::FileWatcher(Engine* _engine, std::string _dirPath){
+    engine = _engine;
     dirToWatch = _dirPath;
 }
 

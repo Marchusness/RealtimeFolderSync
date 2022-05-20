@@ -13,15 +13,15 @@
 Engine::Engine(std::string syncPath, int port)
 {
     tCPListener = new TCPListener(port);
-    fileWatcher = new FileWatcher(syncPath);
-    fileManager = new FileManager(syncPath);
+    fileWatcher = new FileWatcher(this, syncPath);
+    fileManager = new FileManager(this, syncPath);
 }
 
 Engine::Engine(std::string syncPath, int port, std::string address)
 {
     tCPStream = TCPStream::connectTo(address.c_str(), port);
-    fileWatcher = new FileWatcher(syncPath);
-    fileManager = new FileManager(syncPath);
+    fileWatcher = new FileWatcher(this, syncPath);
+    fileManager = new FileManager(this, syncPath);
 }
 
 Engine::~Engine()

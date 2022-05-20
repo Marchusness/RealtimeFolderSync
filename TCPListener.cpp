@@ -22,7 +22,8 @@ TCPListener::TCPListener(int port)
     if (lisfd < 0)
     {
         std::cerr << "ERROR opening socket" << std::endl;
-        return;
+        fprintf(stderr, "%d %s\n", errno, strerror(errno));
+        exit(1);
     }
 
     memset(&serv_addr, 0, sizeof(serv_addr));
@@ -34,7 +35,8 @@ TCPListener::TCPListener(int port)
     if (bind(lisfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
     {
         std::cerr << "ERROR on binding" << std::endl;
-        return;
+        fprintf(stderr, "%d %s\n", errno, strerror(errno));
+        exit(1);
     }
 
     listen(lisfd, 5);
@@ -46,7 +48,7 @@ TCPListener::~TCPListener()
     {
         delete stream;
     }
-    shutdown(lisfd, SHUT_RDWR);
+    ::close(lisfd);
 }
 
 void TCPListener::check()

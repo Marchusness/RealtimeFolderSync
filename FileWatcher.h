@@ -9,6 +9,7 @@
 
 #include "FileStatus.h"
 
+class Engine;
 
 class FileWatcher {
 public:
@@ -17,7 +18,7 @@ public:
         FileStatus action;
     };
 
-    FileWatcher(std::string dirPath);
+    FileWatcher(Engine* engine, std::string dirPath);
 
     bool check();
     action getAction(); 
@@ -26,6 +27,7 @@ public:
     void updateFileTimes(std::string);
 
 private:
+    Engine* engine;
     std::string dirToWatch;
     std::queue<action> changes;
 

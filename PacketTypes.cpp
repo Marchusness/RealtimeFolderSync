@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include "TCPListener.h"
 #include "PacketTypes.h"
 #include "TCPStream.h"
 #include "Packet.h"
@@ -55,7 +56,7 @@ bool Packet_WriteFile::read()
 
 void Packet_WriteFile::exicute(Engine* engine)
 {
-    engine->fileManager->writeFile(path, filedata, engine->fileWatcher);
+    engine->fileManager->writeFile(path, filedata);
 }
 
 Packet_RequestFile::Packet_RequestFile(TCPStream* stream) : Packet(stream, 3)
@@ -170,3 +171,45 @@ void Packet_UpdatePaths::exicute(Engine* engine)
         std::cout << "update path " << path << std::endl;
     }
 }
+
+Packet_DeletePath::Packet_DeletePath(TCPStream* steam) : Packet(stream, 6)
+{
+}
+
+Packet_DeletePath::Packet_DeletePath(std::string path) : Packet(6, 50)
+{
+    this->path = path;
+}
+
+Packet_DeletePath::~Packet_DeletePath()
+{
+}
+
+char* Packet_DeletePath::toByteArray()
+{
+    addToByteArray(path);
+    writeHeader();
+    return data;
+}
+
+bool Packet_DeletePath::read()
+{
+    if (!Packet::read())
+    {
+        return false;
+    }
+    readFromByteArray(path);
+    return true;
+}
+
+void Packet_DeletePath::exicute(Engine* engine)
+{
+    std::cout << "delete file " << path << std::endl;
+    engine->fileManager->deleteFile(path);
+    if (engine->tCPListener)
+    {
+        Packet* p = new Packet_DeletePath(path);
+        engine->tCPListener->sendToAll(p, stream);
+    }   
+}
+

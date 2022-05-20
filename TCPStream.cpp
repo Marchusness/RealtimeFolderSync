@@ -107,7 +107,7 @@ Packet* TCPStream::tryReadPacket()
         }
         else if (type == 3)
         {
-            return nullptr; //no class yet 
+            p = new Packet_RequestFile(this);
         }
         else if (type == 4)
         {

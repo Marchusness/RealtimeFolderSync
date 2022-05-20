@@ -3,10 +3,12 @@
 #include <string.h>
 #include <filesystem>
 #include <fstream>
-
+#include "FileWatcher.h"
+#include "Engine.h"
 #include "FileManager.h"
 
-FileManager::FileManager(std::string _dirPath){
+FileManager::FileManager(Engine* _engine, std::string _dirPath){
+    engine = _engine;
     dirPath = _dirPath;
     std::filesystem::create_directory(dirPath);
 }
@@ -17,7 +19,7 @@ FileManager::FileManager(std::string _dirPath){
 //     zip *z = zip_open("foo.zip", 0, &err);
 // }
 
-void FileManager::writeFile(std::string _path, std::string _data, FileWatcher* fw) {
+void FileManager::writeFile(std::string _path, std::string _data) {
     std::string path = _path;
     path.erase(0,1);
     path = dirPath + path;
@@ -40,8 +42,7 @@ void FileManager::writeFile(std::string _path, std::string _data, FileWatcher* f
     myfile << _data;
     myfile.close();
 
-    fw->updateFileTimes(path);
-
+    engine->fileWatcher->updateFileTimes(path);
 }
 
 std::string FileManager::getFileData(std::string _path) {
@@ -61,6 +62,7 @@ std::string FileManager::getFileData(std::string _path) {
 }
 
 void FileManager::deleteFile(std::string _path) {
+    std::cout << "removing file " << _path << std::endl;
     std::string path = _path;
     path.erase(0,1);
     path = dirPath + path;

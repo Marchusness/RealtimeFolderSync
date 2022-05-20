@@ -13,6 +13,7 @@
 3 request file
 4 request folder structure
 5 update folder structure
+6 delete file
 */
 
 class TCPStream;
