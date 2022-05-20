@@ -14,14 +14,14 @@ Engine::Engine(std::string syncPath, int port)
 {
     tCPListener = new TCPListener(port);
     fileWatcher = new FileWatcher(syncPath);
-    fileManager = new FileManager(syncPath);
+    fileManager = new FileManager(this, syncPath);
 }
 
 Engine::Engine(std::string syncPath, int port, std::string address)
 {
     tCPStream = TCPStream::connectTo(address.c_str(), port);
     fileWatcher = new FileWatcher(syncPath);
-    fileManager = new FileManager(syncPath);
+    fileManager = new FileManager(this, syncPath);
 }
 
 Engine::~Engine()
@@ -58,8 +58,8 @@ void Engine::loop()
             if (a.action == FileStatus::created || a.action == FileStatus::modified)
             {
                 std::cout << "sending changed file" << std::endl;
-                const char* filedata = fileManager->getFileData(a.path);
-                Packet_WriteFile* p = new Packet_WriteFile(a.path, filedata);
+                std::vector<char> filedata = fileManager->getFileData(a.path);
+                Packet_WriteFile* p = new Packet_WriteFile(a.path, filedata.data(), filedata.size());
                 sendPacket((Packet*)p);
             }
         }

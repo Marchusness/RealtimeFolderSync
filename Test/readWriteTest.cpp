@@ -19,10 +19,7 @@ int main(){
     
     std::vector<char> bytes = load_file("hello.txt");
 
-    std::string tmp(&bytes[0], bytes.size());
-    const char* c = tmp.c_str();
-
-    std::ofstream("after.txt", std::ios::binary).write(c, strlen(c));
+    std::ofstream("after.txt", std::ios::binary).write(bytes.data(), bytes.size());
 
 }
 

@@ -4,9 +4,11 @@
 #include <filesystem>
 #include <fstream>
 
+#include "Engine.h"
 #include "FileManager.h"
 
-FileManager::FileManager(std::string _dirPath){
+FileManager::FileManager(Engine* _engine, std::string _dirPath){
+    engine = _engine;
     dirPath = _dirPath;
     std::filesystem::create_directory(dirPath);
 }
@@ -17,11 +19,11 @@ FileManager::FileManager(std::string _dirPath){
 //     zip *z = zip_open("foo.zip", 0, &err);
 // }
 
-void FileManager::writeFile(std::string _path, char* _data, FileWatcher* fw) {
+void FileManager::writeFile(std::string _path, char* _data) {
     std::string path = _path;
     path.erase(0,1);
     path = dirPath + path;
-    std::cout << "writing file func " << path << std::endl;
+    std::cout << "writing file " << path << std::endl;
 
 
     std::string directory = "";
@@ -37,13 +39,13 @@ void FileManager::writeFile(std::string _path, char* _data, FileWatcher* fw) {
 
     // int arrSize = sizeof(arr)/sizeof(arr[0]); am i good to not use this one cause char is 1 byte ?
     int arrSize = sizeof(_data);
+    std::cout << "size of data writing " << arrSize << std::endl;
     std::ofstream(path, std::ios::binary).write(_data, arrSize);
 
-    fw->updateFileTimes(path);
-
+    engine->fileWatcher->updateFileTimes(path);
 }
 
-const char* FileManager::getFileData(std::string _path) {
+std::vector<char> FileManager::getFileData(std::string _path) {
     std::string path = _path;
     path.erase(0,1);
     path = dirPath + path;
@@ -56,10 +58,7 @@ const char* FileManager::getFileData(std::string _path) {
 
     input.close();
 
-    std::string tmp(&bytes[0], bytes.size());
-    const char* c = tmp.c_str();
-
-    return c;
+    return bytes;
 }
 
 void FileManager::deleteFile(std::string _path) {

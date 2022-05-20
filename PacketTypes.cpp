@@ -23,20 +23,26 @@ Packet_WriteFile::Packet_WriteFile(TCPStream* stream) : Packet(stream, 2)
 {
 }
 
-Packet_WriteFile::Packet_WriteFile(std::string path, const char* filedata) : Packet(2, path.size() + strlen(filedata) + INITIALPACKETSIZE + 10)
+Packet_WriteFile::Packet_WriteFile(std::string path, char* _filedata, unsigned int len) : Packet(2, path.size() + len + INITIALPACKETSIZE + 10)
 {
+    std::cout << len << std::endl;
+    std::cout << path << std::endl;
     this->path = path;
-    this->filedata = filedata;
+    this->filedatalen = len;
+    filedata = new char[filedatalen];
+    memcpy(filedata, _filedata, filedatalen);
 }
 
 Packet_WriteFile::~Packet_WriteFile()
 {
+    delete[] filedata;
 }
 
 char* Packet_WriteFile::toByteArray()
 {
     addToByteArray(path);
-    // addToByteArray(filedata);
+    addToByteArray(&filedatalen, sizeof(filedatalen));
+    addToByteArray(filedata, filedatalen);
     writeHeader();
     return data;
 }
@@ -48,14 +54,17 @@ bool Packet_WriteFile::read()
         return false;
     }
     readFromByteArray(path);
-    // readFromByteArray(filedata);
+    readFromByteArray(&filedatalen, sizeof(filedatalen));
+    filedata = new char[filedatalen];
+    readFromByteArray(filedata, filedatalen);
 
     return true;
 }
 
 void Packet_WriteFile::exicute(Engine* engine)
 {
-    engine->fileManager->writeFile(path, data, engine->fileWatcher);
+    std::cout << "got file " << path << std::endl;
+    engine->fileManager->writeFile(path, data);
 }
 
 Packet_RequestFile::Packet_RequestFile(TCPStream* stream) : Packet(stream, 3)
@@ -91,9 +100,9 @@ bool Packet_RequestFile::read()
 void Packet_RequestFile::exicute(Engine* engine)
 {
     //read file
-    const char* fileData = engine->fileManager->getFileData(path);
+    std::vector<char> fileData = engine->fileManager->getFileData(path);
     //send file back
-    Packet_WriteFile* p = new Packet_WriteFile(path, fileData);
+    Packet_WriteFile* p = new Packet_WriteFile(path, fileData.data(), fileData.size());
     stream->write((Packet*)p);
     delete p;
 }

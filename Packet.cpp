@@ -94,7 +94,7 @@ unsigned int Packet::getPacketSize()
 
 unsigned int Packet::getDataSize()
 {
-    return strlen(data);
+    return dataIndex;
 }
 
 void Packet::addToByteArray(void* Tdata, long unsigned length)
