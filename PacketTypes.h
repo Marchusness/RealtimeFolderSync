@@ -21,11 +21,11 @@ class Packet_WriteFile : public Packet //2
 {
 private:
     std::string path;
-    std::string filedata;
+    const char* filedata;
 
 public:
     Packet_WriteFile(TCPStream* stream);    //read from socket constructor
-    Packet_WriteFile(std::string path, std::string data);                     //going to be sent on socket constructor
+    Packet_WriteFile(std::string path, const char* data);                     //going to be sent on socket constructor
     ~Packet_WriteFile();
 
     char* toByteArray();

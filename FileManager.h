@@ -10,9 +10,9 @@ public:
 
     // FileManager(std::string baseDirPath, std::string zipFilePath);
 
-    void writeFile(std::string path, std::string data, FileWatcher* fw);
+    void writeFile(std::string path, char* data, FileWatcher* fw);
 
-    std::string getFileData(std::string path);
+    const char* getFileData(std::string path);
 
     void deleteFile(std::string path);
 

@@ -17,7 +17,7 @@ FileManager::FileManager(std::string _dirPath){
 //     zip *z = zip_open("foo.zip", 0, &err);
 // }
 
-void FileManager::writeFile(std::string _path, std::string _data, FileWatcher* fw) {
+void FileManager::writeFile(std::string _path, char* _data, FileWatcher* fw) {
     std::string path = _path;
     path.erase(0,1);
     path = dirPath + path;
@@ -35,29 +35,31 @@ void FileManager::writeFile(std::string _path, std::string _data, FileWatcher* f
         temp += path.at(i);
     }
 
-    std::ofstream myfile;
-    myfile.open (path);
-    myfile << _data;
-    myfile.close();
+    // int arrSize = sizeof(arr)/sizeof(arr[0]); am i good to not use this one cause char is 1 byte ?
+    int arrSize = sizeof(_data);
+    std::ofstream(path, std::ios::binary).write(_data, arrSize);
 
     fw->updateFileTimes(path);
 
 }
 
-std::string FileManager::getFileData(std::string _path) {
+const char* FileManager::getFileData(std::string _path) {
     std::string path = _path;
     path.erase(0,1);
     path = dirPath + path;
-    std::ifstream file (path);
-    std::string data = "";
-    if ( file.is_open() ) {
-        char mychar;
-        while ( file ) {
-            data += file.get();
-        }
-    }
-    data.pop_back();
-    return data;
+
+    std::ifstream input(path, std::ios::binary);
+
+    std::vector<char> bytes(
+         (std::istreambuf_iterator<char>(input)),
+         (std::istreambuf_iterator<char>()));
+
+    input.close();
+
+    std::string tmp(&bytes[0], bytes.size());
+    const char* c = tmp.c_str();
+
+    return c;
 }
 
 void FileManager::deleteFile(std::string _path) {
