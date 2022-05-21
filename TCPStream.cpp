@@ -92,6 +92,8 @@ Packet* TCPStream::tryReadPacket()
         Packet* p;
         //identify type
         char type = buf[0];
+        std::cout << "new thingo of type?" << type << std::endl;
+
         if (type == 0)
         {
             std::cerr << "eh?" << std::endl;
@@ -116,6 +118,11 @@ Packet* TCPStream::tryReadPacket()
         else if (type == 5)
         {
             p = new Packet_UpdatePaths(this);
+        }
+        else if (type == 6)
+        {
+            std::cout << "type 6" << std::endl;
+            p = new Packet_DeletePath(this);
         }
         else
         {

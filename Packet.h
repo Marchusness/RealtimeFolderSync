@@ -23,7 +23,7 @@ class Packet
 {
 protected:
     char type;
-    unsigned int size = 0;
+    unsigned int size = 50;
     TCPStream* stream = nullptr;
     char* data;
     unsigned int dataIndex = 0;

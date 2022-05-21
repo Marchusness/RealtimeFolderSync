@@ -92,6 +92,8 @@ Packet* TCPListener::getPacketInQueue()
     {
         Packet* p = packets.front();
         packets.pop();
+        std::cout << "return p?" << std::endl;
+
         return p;
     }
     return nullptr;

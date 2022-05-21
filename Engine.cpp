@@ -59,8 +59,13 @@ void Engine::loop()
             {
                 std::cout << "sending changed file" << std::endl;
                 std::string filedata = fileManager->getFileData(a.path);
-                std::cout << filedata << std::endl;
                 Packet_WriteFile* p = new Packet_WriteFile(a.path, filedata);
+                sendPacket((Packet*)p);
+            }
+            if (a.action == FileStatus::erased){
+                std::cout << "sending delete file " << a.path << std::endl;
+                std::string filedata = "what the fuck";
+                Packet_DeletePath* p = new Packet_DeletePath(a.path, filedata);
                 sendPacket((Packet*)p);
             }
         }
@@ -98,12 +103,14 @@ void Engine::sendPacket(Packet* p)
 
 Packet* Engine::getPacket()
 {
+
     if (tCPListener)
     {
         return tCPListener->getPacketInQueue();
     }
     else
     {
+
         return tCPStream->tryReadPacket();
     }
 }

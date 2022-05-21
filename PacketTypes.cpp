@@ -174,11 +174,13 @@ void Packet_UpdatePaths::exicute(Engine* engine)
 
 Packet_DeletePath::Packet_DeletePath(TCPStream* steam) : Packet(stream, 6)
 {
+    std::cout << "what about here?" << std::endl;
 }
 
-Packet_DeletePath::Packet_DeletePath(std::string path) : Packet(6, 50)
+Packet_DeletePath::Packet_DeletePath(std::string path, std::string filedata) : Packet(6, path.size() + filedata.size() + INITIALPACKETSIZE + 100)
 {
     this->path = path;
+    this->filedata = filedata;
 }
 
 Packet_DeletePath::~Packet_DeletePath()
@@ -188,6 +190,7 @@ Packet_DeletePath::~Packet_DeletePath()
 char* Packet_DeletePath::toByteArray()
 {
     addToByteArray(path);
+    addToByteArray(filedata);
     writeHeader();
     return data;
 }
@@ -199,16 +202,20 @@ bool Packet_DeletePath::read()
         return false;
     }
     readFromByteArray(path);
+    readFromByteArray(filedata);
     return true;
 }
 
 void Packet_DeletePath::exicute(Engine* engine)
 {
-    std::cout << "delete file " << path << std::endl;
+    std::cout << "delete file excecute" << std::endl;
     engine->fileManager->deleteFile(path);
+    engine->fileWatcher->deleteFile(path);
     if (engine->tCPListener)
     {
-        Packet* p = new Packet_DeletePath(path);
+        std::string filedata = "fuck";
+
+        Packet* p = new Packet_DeletePath(path, filedata);
         engine->tCPListener->sendToAll(p, stream);
     }   
 }

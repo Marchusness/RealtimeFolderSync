@@ -86,3 +86,8 @@ void FileWatcher::updateFileTimes(std::string _path) {
     std::filesystem::path path = _path;
     files[path.string()] = std::filesystem::last_write_time(path);
 }
+
+void FileWatcher::deleteFile(std::string _path) {
+    std::filesystem::path path = _path;
+    files.erase(path.string());
+}

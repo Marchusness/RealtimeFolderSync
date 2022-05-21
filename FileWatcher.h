@@ -25,6 +25,7 @@ public:
     std::vector<std::string> getPaths();
 
     void updateFileTimes(std::string);
+    void deleteFile(std::string);
 
 private:
     Engine* engine;

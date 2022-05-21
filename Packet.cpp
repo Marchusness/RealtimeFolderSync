@@ -25,6 +25,7 @@ Packet::Packet(char type, unsigned int _size)
     this->type = type;
     this->size = _size < INITIALPACKETSIZE ? INITIALPACKETSIZE : _size; //must atleast be large enought to hold the header
     this->dataIndex = INITIALPACKETSIZE;
+    std::cout << "packet making" << std::endl;
     data = new char[size];
 }
 
@@ -56,8 +57,12 @@ bool Packet::read()
 
     //read data size from stream
     char* streamData[sizeof(unsigned int)];
+
+
+    std::cout << "before?" << std::endl;
     stream->read(streamData, sizeof(unsigned int));
-    
+    std::cout << "after?" << std::endl;
+
     //convert to unsigned int
     char* Cdata = reinterpret_cast<char* >(&size);
     memcpy(Cdata, streamData, sizeof(unsigned int));

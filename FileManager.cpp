@@ -25,7 +25,6 @@ void FileManager::writeFile(std::string _path, std::string _data) {
     path = dirPath + path;
     std::cout << "writing file func " << path << std::endl;
 
-
     std::string directory = "";
     std::string temp = "";
     for(unsigned i = 0; i < path.length(); i++) {
@@ -36,13 +35,19 @@ void FileManager::writeFile(std::string _path, std::string _data) {
         }
         temp += path.at(i);
     }
+    if (temp.at(1) != '.') {
+        std::cout << "writing file step" << temp << " " << temp.at(1) << std::endl;
+        std::ofstream myfile;
+        myfile.open (path);
+        myfile << _data;
+        myfile.close();
+        engine->fileWatcher->updateFileTimes(path);
 
-    std::ofstream myfile;
-    myfile.open (path);
-    myfile << _data;
-    myfile.close();
+    } else {
+        std::cout << "didnt write" << temp << std::endl;
 
-    engine->fileWatcher->updateFileTimes(path);
+    }
+
 }
 
 std::string FileManager::getFileData(std::string _path) {
