@@ -21,8 +21,8 @@ TCPStream::TCPStream(int sockfd)
 
 TCPStream::~TCPStream()
 {
-    Packet_Closed* p = new Packet_Closed();
-    write((Packet*)p);
+    // Packet_Closed* p = new Packet_Closed();
+    // write((Packet*)p);
     ::close(sockfd);
 }
 
@@ -101,7 +101,9 @@ Packet* TCPStream::tryReadPacket()
         }
         else if (type == 1)
         {
-            p = new Packet_Closed(this);
+            std::cout << "type 1" << std::endl;
+            p = new Packet_DeletePath(this);
+            // p = new Packet_Closed(this);
         }
         else if (type == 2)
         {
@@ -109,20 +111,19 @@ Packet* TCPStream::tryReadPacket()
         }
         else if (type == 3)
         {
-            p = new Packet_RequestFile(this);
+            // p = new Packet_RequestFile(this);
         }
         else if (type == 4)
         {
-            p = new Packet_GetPaths(this);
+            // p = new Packet_GetPaths(this);
         }
         else if (type == 5)
         {
-            p = new Packet_UpdatePaths(this);
+            // p = new Packet_UpdatePaths(this);
         }
         else if (type == 6)
         {
-            std::cout << "type 6" << std::endl;
-            p = new Packet_DeletePath(this);
+            
         }
         else
         {
