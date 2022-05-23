@@ -19,11 +19,11 @@ FileManager::FileManager(Engine* _engine, std::string _dirPath){
 //     zip *z = zip_open("foo.zip", 0, &err);
 // }
 
-void FileManager::writeFile(std::string _path, std::string _data) {
+void FileManager::writeFile(std::string _path, char* _data) {
     std::string path = _path;
     path.erase(0,1);
     path = dirPath + path;
-    std::cout << "writing file func " << path << std::endl;
+    std::cout << "writing file " << path << std::endl;
 
     std::string directory = "";
     std::string temp = "";
@@ -45,25 +45,29 @@ void FileManager::writeFile(std::string _path, std::string _data) {
 
     } else {
         std::cout << "didnt write" << temp << std::endl;
-
     }
-
+    
+    int arrSize = sizeof(_data);
+    std::cout << "size of data writing " << arrSize << std::endl;
+    std::ofstream(path, std::ios::binary).write(_data, arrSize);
+    
+    engine->fileWatcher->updateFileTimes(path);
 }
 
-std::string FileManager::getFileData(std::string _path) {
+std::vector<char> FileManager::getFileData(std::string _path) {
     std::string path = _path;
     path.erase(0,1);
     path = dirPath + path;
-    std::ifstream file (path);
-    std::string data = "";
-    if ( file.is_open() ) {
-        char mychar;
-        while ( file ) {
-            data += file.get();
-        }
-    }
-    data.pop_back();
-    return data;
+
+    std::ifstream input(path, std::ios::binary);
+
+    std::vector<char> bytes(
+         (std::istreambuf_iterator<char>(input)),
+         (std::istreambuf_iterator<char>()));
+
+    input.close();
+
+    return bytes;
 }
 
 void FileManager::deleteFile(std::string _path) {

@@ -58,8 +58,8 @@ void Engine::loop()
             if (a.action == FileStatus::created || a.action == FileStatus::modified)
             {
                 std::cout << "sending changed file" << std::endl;
-                std::string filedata = fileManager->getFileData(a.path);
-                Packet_WriteFile* p = new Packet_WriteFile(a.path, filedata);
+                std::vector<char> filedata = fileManager->getFileData(a.path);
+                Packet_WriteFile* p = new Packet_WriteFile(a.path, filedata.data(), filedata.size());
                 sendPacket((Packet*)p);
             }
             if (a.action == FileStatus::erased){

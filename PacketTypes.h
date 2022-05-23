@@ -28,11 +28,12 @@ class Packet_WriteFile : public Packet //2
 {
 private:
     std::string path;
-    std::string filedata;
+    char* filedata;
+    unsigned int filedatalen;
 
 public:
     Packet_WriteFile(TCPStream* stream);    //read from socket constructor
-    Packet_WriteFile(std::string path, std::string data);                     //going to be sent on socket constructor
+    Packet_WriteFile(std::string path, char* data, unsigned int length);                     //going to be sent on socket constructor
     ~Packet_WriteFile();
 
     char* toByteArray();
