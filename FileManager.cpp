@@ -13,6 +13,10 @@ FileManager::FileManager(Engine* _engine, std::string _dirPath){
     std::filesystem::create_directory(dirPath);
 }
 
+FileManager::FileManager(std::string _testPath) {
+    dirPath = _testPath;
+}
+
 // FileManager(std::string _baseDirPath, std::string zipFilePath) { // used if you join another persons project
 //     dirPath = _dirPath;
 //     int err = 0;
@@ -41,8 +45,8 @@ void FileManager::writeFile(std::string _path, char* _data, unsigned int _dataLe
         // int arrSize = sizeof(_data);
         std::cout << "size of data writing " << _dataLength << std::endl;
         std::ofstream(path, std::ios::binary).write(_data, _dataLength);
-        
-        engine->fileWatcher->updateFileTimes(path);
+
+        // engine->fileWatcher->updateFileTimes(path);
     } else {
         std::cout << "didnt write" << temp << std::endl;
     }

@@ -10,6 +10,8 @@ class Engine;
 class FileManager {
 public:
     FileManager(Engine* engine, std::string dirPath);
+    
+    FileManager(std::string test);
 
     // FileManager(std::string baseDirPath, std::string zipFilePath);
 
