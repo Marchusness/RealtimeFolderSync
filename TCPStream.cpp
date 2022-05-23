@@ -76,7 +76,8 @@ int TCPStream::read(void* buf, int len)
 void TCPStream::write(Packet* packet)
 {
     char* data = packet->toByteArray();
-    unsigned int length = packet->getDataSize();
+    unsigned int length = packet->getDataSize(); // this works
+
     unsigned int dataWritten = 0;
     while (dataWritten < length)
     {

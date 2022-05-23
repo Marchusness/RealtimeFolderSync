@@ -13,7 +13,7 @@ public:
 
     // FileManager(std::string baseDirPath, std::string zipFilePath);
 
-    void writeFile(std::string path, char* data);
+    void writeFile(std::string path, char* data, unsigned int _dataLength);
 
     std::vector<char> getFileData(std::string path);
 

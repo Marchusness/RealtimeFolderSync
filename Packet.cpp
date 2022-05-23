@@ -57,11 +57,7 @@ bool Packet::read()
 
     //read data size from stream
     char* streamData[sizeof(unsigned int)];
-
-
-    std::cout << "before?" << std::endl;
     stream->read(streamData, sizeof(unsigned int));
-    std::cout << "after?" << std::endl;
 
     //convert to unsigned int
     char* Cdata = reinterpret_cast<char* >(&size);

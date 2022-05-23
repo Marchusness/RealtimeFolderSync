@@ -19,7 +19,7 @@ FileManager::FileManager(Engine* _engine, std::string _dirPath){
 //     zip *z = zip_open("foo.zip", 0, &err);
 // }
 
-void FileManager::writeFile(std::string _path, char* _data) {
+void FileManager::writeFile(std::string _path, char* _data, unsigned int _dataLength) {
     std::string path = _path;
     path.erase(0,1);
     path = dirPath + path;
@@ -35,23 +35,19 @@ void FileManager::writeFile(std::string _path, char* _data) {
         }
         temp += path.at(i);
     }
-    if (temp.at(1) != '.') {
-        std::cout << "writing file step" << temp << " " << temp.at(1) << std::endl;
-        std::ofstream myfile;
-        myfile.open (path);
-        myfile << _data;
-        myfile.close();
-        engine->fileWatcher->updateFileTimes(path);
 
+    if (temp.at(1) != '.') {
+
+        // int arrSize = sizeof(_data);
+        std::cout << "size of data writing " << _dataLength << std::endl;
+        std::ofstream(path, std::ios::binary).write(_data, _dataLength);
+        
+        engine->fileWatcher->updateFileTimes(path);
     } else {
         std::cout << "didnt write" << temp << std::endl;
     }
     
-    int arrSize = sizeof(_data);
-    std::cout << "size of data writing " << arrSize << std::endl;
-    std::ofstream(path, std::ios::binary).write(_data, arrSize);
     
-    engine->fileWatcher->updateFileTimes(path);
 }
 
 std::vector<char> FileManager::getFileData(std::string _path) {

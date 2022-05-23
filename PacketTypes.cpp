@@ -53,7 +53,7 @@ bool Packet_WriteFile::read()
 void Packet_WriteFile::exicute(Engine* engine)
 {
     std::cout << "got file " << path << std::endl;
-    engine->fileManager->writeFile(path, data);
+    engine->fileManager->writeFile(path, data, filedatalen);
 }
 
 
