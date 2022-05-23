@@ -71,7 +71,7 @@ void TCPListener::check()
         Packet* p = streams[i]->tryReadPacket();
         if (p)
         {
-            if (p->getType() == 69) //stream has closed // will add this back to 1 later
+            if (p->getType() == 1) //stream has closed // will add this back to 1 later
             {
                 std::cout << "stream with fd " << streams[i]->sockfd << " has disconnected" << std::endl;
                 delete streams[i];

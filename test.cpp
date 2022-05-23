@@ -9,7 +9,12 @@ int main(){
 
     char* cdata = initialData.data();
 
-    fm.writeFile("./new.png", cdata, initialData.size());
+    char* Cdata = reinterpret_cast<char* >(cdata);
+
+    char* filedata = new char[initialData.size()];
+    memcpy(filedata, Cdata, initialData.size());
+
+    fm.writeFile("./new.png", Cdata, initialData.size());
 
     std::vector<char> afterData = fm.getFileData("./new.png");
 
@@ -20,7 +25,19 @@ int main(){
 
     }
 
+    std::vector<char> original = fm.getFileData("./brew.rtf");
+    std::vector<char> corrupt = fm.getFileData("./brew1.rtf");
 
+    if (original == corrupt) {
+        std::cout << "well fuck it worked" << std::endl;
+    } else {
+        std::cout << "well it didnt work" << std::endl;
+        std::string s(original.begin(), original.end());
+        std::cout << s << std::endl;
+        std::string e(corrupt.begin(), corrupt.end());
+        std::cout << e << std::endl;
+
+    }
 
 
 

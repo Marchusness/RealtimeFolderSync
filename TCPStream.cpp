@@ -21,8 +21,8 @@ TCPStream::TCPStream(int sockfd)
 
 TCPStream::~TCPStream()
 {
-    // Packet_Closed* p = new Packet_Closed();
-    // write((Packet*)p);
+    Packet_Closed* p = new Packet_Closed();
+    write((Packet*)p);
     ::close(sockfd);
 }
 
@@ -76,8 +76,8 @@ int TCPStream::read(void* buf, int len)
 void TCPStream::write(Packet* packet)
 {
     char* data = packet->toByteArray();
-    unsigned int length = packet->getDataSize(); // this works
-
+    unsigned int length = packet->getDataSize();
+ 
     unsigned int dataWritten = 0;
     while (dataWritten < length)
     {
@@ -102,9 +102,7 @@ Packet* TCPStream::tryReadPacket()
         }
         else if (type == 1)
         {
-            std::cout << "type 1" << std::endl;
-            p = new Packet_DeletePath(this);
-            // p = new Packet_Closed(this);
+            p = new Packet_Closed(this);
         }
         else if (type == 2)
         {
@@ -112,7 +110,8 @@ Packet* TCPStream::tryReadPacket()
         }
         else if (type == 3)
         {
-            // p = new Packet_RequestFile(this);
+            std::cout << "type 3" << std::endl;
+            p = new Packet_DeletePath(this);
         }
         else if (type == 4)
         {

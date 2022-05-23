@@ -8,6 +8,27 @@
 #include "FileManager.h"
 #include "FileWatcher.h"
 
+
+Packet_Closed::Packet_Closed(TCPStream* stream) : Packet(stream, 1)
+{
+}
+
+Packet_Closed::Packet_Closed() : Packet(1, 0)
+{
+}
+
+Packet_Closed::~Packet_Closed()
+{
+}
+
+
+
+
+
+
+
+
+
 Packet_WriteFile::Packet_WriteFile(TCPStream* stream) : Packet(stream, 2)
 {
 }
@@ -33,6 +54,9 @@ char* Packet_WriteFile::toByteArray()
     addToByteArray(&filedatalen, sizeof(filedatalen));
     addToByteArray(filedata, filedatalen);
     writeHeader();
+
+    std::string str(data);
+    std::cout << str << std::endl;
     return data;
 }
 
@@ -53,7 +77,7 @@ bool Packet_WriteFile::read()
 void Packet_WriteFile::exicute(Engine* engine)
 {
     std::cout << "got file " << path << std::endl;
-    engine->fileManager->writeFile(path, data, filedatalen);
+    engine->fileManager->writeFile(path, filedata, filedatalen);
 }
 
 
@@ -71,11 +95,11 @@ void Packet_WriteFile::exicute(Engine* engine)
 
 
 
-Packet_DeletePath::Packet_DeletePath(TCPStream* stream) : Packet(stream, 1)
+Packet_DeletePath::Packet_DeletePath(TCPStream* stream) : Packet(stream,3)
 {
 }
 
-Packet_DeletePath::Packet_DeletePath(std::string path, std::string filedata) : Packet(1, path.size() + filedata.size() + INITIALPACKETSIZE + 10)
+Packet_DeletePath::Packet_DeletePath(std::string path, std::string filedata) : Packet(3, path.size() + filedata.size() + INITIALPACKETSIZE + 10)
 {
     this->path = path;
     this->filedata = filedata;

@@ -13,7 +13,7 @@ FileManager::FileManager(Engine* _engine, std::string _dirPath){
     std::filesystem::create_directory(dirPath);
 }
 
-FileManager::FileManager(std::string _testPath) {
+FileManager::FileManager(std::string _testPath) {  // this is for testing
     dirPath = _testPath;
 }
 
@@ -46,7 +46,7 @@ void FileManager::writeFile(std::string _path, char* _data, unsigned int _dataLe
         std::cout << "size of data writing " << _dataLength << std::endl;
         std::ofstream(path, std::ios::binary).write(_data, _dataLength);
 
-        // engine->fileWatcher->updateFileTimes(path);
+        engine->fileWatcher->updateFileTimes(path);
     } else {
         std::cout << "didnt write" << temp << std::endl;
     }

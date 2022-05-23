@@ -7,20 +7,13 @@
 
 class Engine;
 
-//delete file
-class Packet_DeletePath : public Packet //1
+//used to tell the listener or reader that this stream has been closed
+class Packet_Closed : public Packet //1
 {
-private:
-    std::string path;
-    std::string filedata;
 public:
-    Packet_DeletePath(TCPStream* stream);
-    Packet_DeletePath(std::string path, std::string data);
-    ~Packet_DeletePath();
-
-    char* toByteArray();
-    bool read();
-    void exicute(Engine* engine);
+    Packet_Closed(TCPStream* stream);
+    Packet_Closed();
+    ~Packet_Closed();
 };
 
 //writes a file
@@ -41,6 +34,21 @@ public:
     void exicute(Engine* engine);
 };
 
+//delete file
+class Packet_DeletePath : public Packet //3
+{
+private:
+    std::string path;
+    std::string filedata;
+public:
+    Packet_DeletePath(TCPStream* stream);
+    Packet_DeletePath(std::string path, std::string data);
+    ~Packet_DeletePath();
+
+    char* toByteArray();
+    bool read();
+    void exicute(Engine* engine);
+};
 
 
 
