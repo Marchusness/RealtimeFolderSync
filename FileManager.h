@@ -22,7 +22,6 @@ public:
 private:
     Engine* engine;
     std::string dirPath;
-    Engine* engine;
 };
 
 #endif
