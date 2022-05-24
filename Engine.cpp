@@ -73,7 +73,11 @@ void Engine::loop()
     {
         return;
     }
-    
+
+    //using an abstract class
+    anAbstractClass* a = fileManager;
+    a->printUselessInformation();
+
     running = true;
     while (running)
     {

@@ -64,3 +64,8 @@ void FileManager::deleteFile(std::string _path) {
     path = dirPath + path;
     remove( path.c_str() );
 }
+
+void FileManager::printUselessInformation()
+{
+    std::cout << "the path is " << dirPath << std::endl;
+}
