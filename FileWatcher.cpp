@@ -29,7 +29,7 @@ bool FileWatcher::check() {
             it++;
         }                    
     }
-
+    
     for(auto &file : std::filesystem::recursive_directory_iterator(dirToWatch)) {
         auto current_file_last_write_time = std::filesystem::last_write_time(file);
 
@@ -49,9 +49,7 @@ bool FileWatcher::check() {
                 changes.push(a);
                 changed = true;
             }
-        }
-
-        
+        } 
     }
     return changed;
 }

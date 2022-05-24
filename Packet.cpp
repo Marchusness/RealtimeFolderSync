@@ -25,7 +25,6 @@ Packet::Packet(char type, unsigned int _size)
     this->type = type;
     this->size = _size < INITIALPACKETSIZE ? INITIALPACKETSIZE : _size; //must atleast be large enought to hold the header
     this->dataIndex = INITIALPACKETSIZE;
-    std::cout << "packet making" << std::endl;
     data = new char[size];
 }
 

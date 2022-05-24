@@ -25,7 +25,7 @@ private:
     unsigned int filedatalen;
 
 public:
-    Packet_WriteFile(TCPStream* stream);    //read from socket constructor
+    Packet_WriteFile(TCPStream* stream);                                                     //read from socket constructor
     Packet_WriteFile(std::string path, char* data, unsigned int length);                     //going to be sent on socket constructor
     ~Packet_WriteFile();
 
@@ -39,21 +39,14 @@ class Packet_DeletePath : public Packet //3
 {
 private:
     std::string path;
-    std::string filedata;
 public:
     Packet_DeletePath(TCPStream* stream);
-    Packet_DeletePath(std::string path, std::string data);
+    Packet_DeletePath(std::string path);
     ~Packet_DeletePath();
 
     char* toByteArray();
     bool read();
     void exicute(Engine* engine);
 };
-
-
-
-
-
-
 
 #endif

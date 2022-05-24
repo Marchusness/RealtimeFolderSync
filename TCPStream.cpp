@@ -16,6 +16,7 @@
 
 TCPStream::TCPStream(int sockfd)
 {
+    fcntl(sockfd, F_SETFL, O_NONBLOCK);
     this->sockfd = sockfd;
 }
 
@@ -93,11 +94,10 @@ Packet* TCPStream::tryReadPacket()
         Packet* p;
         //identify type
         char type = buf[0];
-        std::cout << "new thingo of type?" << type << std::endl;
 
         if (type == 0)
         {
-            std::cerr << "eh?" << std::endl;
+            fprintf(stderr, "ERROR invalid packet type\n");
             return nullptr;
         }
         else if (type == 1)
@@ -110,29 +110,21 @@ Packet* TCPStream::tryReadPacket()
         }
         else if (type == 3)
         {
-            std::cout << "type 3" << std::endl;
             p = new Packet_DeletePath(this);
-        }
-        else if (type == 4)
-        {
-            // p = new Packet_GetPaths(this);
-        }
-        else if (type == 5)
-        {
-            // p = new Packet_UpdatePaths(this);
-        }
-        else if (type == 6)
-        {
-            
         }
         else
         {
+            fprintf(stderr, "ERROR invalid packet type\n");
             return nullptr;
         }
         
         if (p->read())
         {
             return p;
+        }
+        else
+        {
+            fprintf(stderr, "ERROR bad packet read\n");
         }
     }
     return nullptr;

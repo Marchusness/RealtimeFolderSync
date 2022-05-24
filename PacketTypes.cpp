@@ -9,12 +9,15 @@
 #include "FileWatcher.h"
 
 
+/*      PACKET_CLOSED      */
+
+
 Packet_Closed::Packet_Closed(TCPStream* stream) : Packet(stream, 1)
 {
 }
 
 Packet_Closed::Packet_Closed() : Packet(1, 0)
-{
+{ 
 }
 
 Packet_Closed::~Packet_Closed()
@@ -22,11 +25,7 @@ Packet_Closed::~Packet_Closed()
 }
 
 
-
-
-
-
-
+/*         PACKET_WRITEFILE         */
 
 
 Packet_WriteFile::Packet_WriteFile(TCPStream* stream) : Packet(stream, 2)
@@ -35,8 +34,6 @@ Packet_WriteFile::Packet_WriteFile(TCPStream* stream) : Packet(stream, 2)
 
 Packet_WriteFile::Packet_WriteFile(std::string path, char* _filedata, unsigned int len) : Packet(2, path.size() + len + INITIALPACKETSIZE + 10)
 {
-    std::cout << len << std::endl;
-    std::cout << path << std::endl;
     this->path = path;
     this->filedatalen = len;
     filedata = new char[filedatalen];
@@ -54,9 +51,6 @@ char* Packet_WriteFile::toByteArray()
     addToByteArray(&filedatalen, sizeof(filedatalen));
     addToByteArray(filedata, filedatalen);
     writeHeader();
-
-    std::string str(data);
-    std::cout << str << std::endl;
     return data;
 }
 
@@ -76,33 +70,26 @@ bool Packet_WriteFile::read()
 
 void Packet_WriteFile::exicute(Engine* engine)
 {
-    std::cout << "got file " << path << std::endl;
     engine->fileManager->writeFile(path, filedata, filedatalen);
+    if (engine->tCPListener)
+    {
+        Packet* p = new Packet_WriteFile(path, filedata, filedatalen);
+        engine->tCPListener->sendToAll(p, stream);
+        delete p;
+    }
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
+/*        PACKET_DELETEPATH         */
 
 
 Packet_DeletePath::Packet_DeletePath(TCPStream* stream) : Packet(stream,3)
 {
 }
 
-Packet_DeletePath::Packet_DeletePath(std::string path, std::string filedata) : Packet(3, path.size() + filedata.size() + INITIALPACKETSIZE + 10)
+Packet_DeletePath::Packet_DeletePath(std::string path) : Packet(3, path.size() + INITIALPACKETSIZE + 10)
 {
     this->path = path;
-    this->filedata = filedata;
 }
 
 Packet_DeletePath::~Packet_DeletePath()
@@ -112,7 +99,6 @@ Packet_DeletePath::~Packet_DeletePath()
 char* Packet_DeletePath::toByteArray()
 {
     addToByteArray(path);
-    addToByteArray(filedata);
     writeHeader();
     return data;
 }
@@ -124,35 +110,18 @@ bool Packet_DeletePath::read()
         return false;
     }
     readFromByteArray(path);
-    readFromByteArray(filedata);
 
     return true;
 }
 
 void Packet_DeletePath::exicute(Engine* engine)
 {
-    std::cout << "delete file excecute" << std::endl;
     engine->fileManager->deleteFile(path);
     engine->fileWatcher->deleteFile(path);
     if (engine->tCPListener)
     {
-        std::string filedata = "fuck";
-
-        Packet* p = new Packet_DeletePath(path, filedata);
-        engine->tCPListener->sendToAll(p, stream);
-    }   
+        Packet* p = new Packet_DeletePath(path);
+        engine->sendPacket(p, stream);
+        delete p;
+    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
