@@ -92,10 +92,12 @@ void Engine::loop()
                 std::vector<char> filedata = fileManager->getFileData(a.path);
                 Packet_WriteFile* p = new Packet_WriteFile(a.path, filedata.data(), filedata.size());
                 sendPacket((Packet*)p);
+                delete p;
             }
             if (a.action == FileStatus::erased){
                 Packet_DeletePath* p = new Packet_DeletePath(a.path);
                 sendPacket((Packet*)p);
+                delete p;
             }
         }
         
@@ -109,6 +111,7 @@ void Engine::loop()
         while ((p = getPacket()))
         {
             p->exicute(this);
+            delete p;
         }
 
         //pause

@@ -3,21 +3,39 @@
 
 int main(int argc, char const *argv[])
 {
-    if (argc < 3)
+    std::string syncPath;
+    while (syncPath.length() == 0)
     {
-        std::cout << "needs <Sync path> <Port> <address>" << std::endl;
-        return 1;
+        std::cout << "Enter a folder path to sync" << std::endl;
+        getline(std::cin, syncPath);
     }
-    std::string syncPath = argv[1];
-    int port = std::stoi(argv[2]);
-    Engine* engine;
-    if (argc < 4)
+    int port = 0;
+    std::string portString;
+    while (port == 0)
     {
+        std::cout << "Enter a port number" << std::endl;
+        getline(std::cin, portString);
+        try
+        {
+            port = std::stoi(portString);
+        }
+        catch(const std::exception& e)
+        {
+        }
+    }
+    std::string address;
+    std::cout << "Enter an address to connect to or nothing to start a server" << std::endl;
+    getline(std::cin, address);
+
+    Engine* engine;
+    if (address.length() == 0)
+    {
+        std::cout << "Starting server with folder path " << syncPath << " on port " << port << std::endl;
         engine = new Engine(syncPath, port);
     }
     else
     {
-        std::string address = argv[3];
+        std::cout << "Connecting to address " << address << " with folder path " << syncPath << " on port " << port << std::endl;
         engine = new Engine(syncPath, port, address);
     }
     engine->loop();
