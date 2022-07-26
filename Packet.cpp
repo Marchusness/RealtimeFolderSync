@@ -4,6 +4,9 @@
 #include "TCPStream.h"
 #include "Engine.h"
 
+#define maxPacketSize 10000
+
+
 Packet::Packet(TCPStream* stream, char type)
 {
     this->type = type;
@@ -67,7 +70,8 @@ bool Packet::read()
     data = new char[size];
     while (readDataLen < size)
     {
-        readDataLen += stream->read(data + readDataLen, size - readDataLen);
+        int curRead = stream->read(data + readDataLen, size - readDataLen);
+        readDataLen += curRead > 0 ? curRead : 0;
     }
     return true;
 }
