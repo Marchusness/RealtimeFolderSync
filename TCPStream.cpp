@@ -13,9 +13,11 @@
 #include "Packet.h"
 #include "PacketTypes.h"
 
+#define maxPacketSize 1000
 
 TCPStream::TCPStream(int sockfd)
 {
+    fcntl(sockfd, F_SETFL, O_NONBLOCK);
     this->sockfd = sockfd;
 }
 
@@ -49,14 +51,16 @@ TCPStream* TCPStream::connectTo(const char* ip, int port)
 
     memset(&serv_addr, 0, sizeof(serv_addr));
     serv_addr.sin_family = AF_INET;
-    memcpy((char *)server->h_addr, (char *)&serv_addr.sin_addr.s_addr, server->h_length);
+    memcpy((char *)&serv_addr.sin_addr.s_addr, (char *)server->h_addr, server->h_length);
     serv_addr.sin_port = htons(port);
 
     if (connect(sockfd, (sockaddr*)&serv_addr, sizeof(serv_addr)) < 0) //idk where the adress goes when casting
     {
         fprintf(stderr, "ERROR connecting\n");
+        fprintf(stderr, "%d %s\n", errno, strerror(errno));
         return nullptr;
     }
+
     fcntl(sockfd, F_SETFL, O_NONBLOCK);
     return new TCPStream(sockfd);
 }
@@ -69,6 +73,7 @@ int TCPStream::write(void* buf, int len)
 int TCPStream::read(void* buf, int len)
 {
     return ::read(sockfd, buf, len);
+    // read(sockfd, buf, len);
 }
 
 void TCPStream::write(Packet* packet)
@@ -78,7 +83,8 @@ void TCPStream::write(Packet* packet)
     unsigned int dataWritten = 0;
     while (dataWritten < length)
     {
-        dataWritten += write(data + dataWritten, length - dataWritten);
+        int curWritten = write(data + dataWritten, length - dataWritten);
+        dataWritten += curWritten > 0 ? curWritten : 0;
     }
 }
 
@@ -90,9 +96,10 @@ Packet* TCPStream::tryReadPacket()
         Packet* p;
         //identify type
         char type = buf[0];
+
         if (type == 0)
         {
-            std::cerr << "eh?" << std::endl;
+            fprintf(stderr, "ERROR invalid packet type\n");
             return nullptr;
         }
         else if (type == 1)
@@ -105,24 +112,25 @@ Packet* TCPStream::tryReadPacket()
         }
         else if (type == 3)
         {
-            return nullptr; //no class yet 
+            p = new Packet_DeletePath(this);
         }
         else if (type == 4)
         {
-            p = new Packet_GetPaths(this);
-        }
-        else if (type == 5)
-        {
-            p = new Packet_UpdatePaths(this);
+            p = new Packet_DeleteDir(this);
         }
         else
         {
+            fprintf(stderr, "ERROR invalid packet type\n");
             return nullptr;
         }
         
         if (p->read())
         {
             return p;
+        }
+        else
+        {
+            fprintf(stderr, "ERROR bad packet read\n");
         }
     }
     return nullptr;

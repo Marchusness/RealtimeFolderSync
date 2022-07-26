@@ -28,4 +28,3 @@ Syncs folders realtime
 - Security
 - Better methods in general
 - Fewer memory leaks
-

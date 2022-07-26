@@ -10,9 +10,7 @@
 0 something
 1 connection closed
 2 write file
-3 request file
-4 request folder structure
-5 update folder structure
+3 delete file
 */
 
 class TCPStream;
@@ -22,7 +20,7 @@ class Packet
 {
 protected:
     char type;
-    unsigned int size = 0;
+    unsigned int size = 50;
     TCPStream* stream = nullptr;
     char* data;
     unsigned int dataIndex = 0;

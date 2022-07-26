@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include "TCPListener.h"
 #include "PacketTypes.h"
 #include "TCPStream.h"
 #include "Packet.h"
@@ -7,166 +8,167 @@
 #include "FileManager.h"
 #include "FileWatcher.h"
 
+
+/*      PACKET_CLOSED      */
+
+
 Packet_Closed::Packet_Closed(TCPStream* stream) : Packet(stream, 1)
 {
 }
 
 Packet_Closed::Packet_Closed() : Packet(1, 0)
-{
+{ 
 }
 
 Packet_Closed::~Packet_Closed()
 {
 }
 
+
+/*         PACKET_WRITEFILE         */
+
+
 Packet_WriteFile::Packet_WriteFile(TCPStream* stream) : Packet(stream, 2)
 {
 }
 
-Packet_WriteFile::Packet_WriteFile(std::string path, std::string filedata) : Packet(2, path.size() + filedata.size() + INITIALPACKETSIZE + 10)
+Packet_WriteFile::Packet_WriteFile(std::string path, char* _filedata, unsigned int len) : Packet(2, path.size() + len + INITIALPACKETSIZE + 10)
 {
     this->path = path;
-    this->filedata = filedata;
+    this->filedatalen = len;
+    filedata = new char[filedatalen];
+    memcpy(filedata, _filedata, filedatalen);
 }
 
 Packet_WriteFile::~Packet_WriteFile()
 {
+    delete[] filedata;
 }
 
 char* Packet_WriteFile::toByteArray()
 {
     addToByteArray(path);
-    addToByteArray(filedata);
+    addToByteArray(&filedatalen, sizeof(filedatalen));
+    addToByteArray(filedata, filedatalen);
     writeHeader();
     return data;
 }
 
 bool Packet_WriteFile::read()
 {
-    if (!Packet::read)
+    if (!Packet::read())
     {
         return false;
     }
     readFromByteArray(path);
-    readFromByteArray(filedata);
+    readFromByteArray(&filedatalen, sizeof(filedatalen));
+    filedata = new char[filedatalen];
+    readFromByteArray(filedata, filedatalen);
 
     return true;
 }
 
 void Packet_WriteFile::exicute(Engine* engine)
 {
-    engine->fileManager->writeFile(path, filedata);
+    engine->fileManager->writeFile(path, filedata, filedatalen);
+    if (engine->tCPListener)
+    {
+        Packet* p = new Packet_WriteFile(path, filedata, filedatalen);
+        engine->tCPListener->sendToAll(p, stream);
+        delete p;
+    }
 }
 
-Packet_RequestFile::Packet_RequestFile(TCPStream* stream) : Packet(stream, 3)
+
+/*        PACKET_DELETEPATH         */
+
+
+Packet_DeletePath::Packet_DeletePath(TCPStream* stream) : Packet(stream,3)
 {
 }
 
-Packet_RequestFile::Packet_RequestFile(std::string path) : Packet(3, 50)
+Packet_DeletePath::Packet_DeletePath(std::string path) : Packet(3, path.size() + INITIALPACKETSIZE + 10)
 {
     this->path = path;
 }
 
-Packet_RequestFile::~Packet_RequestFile()
+Packet_DeletePath::~Packet_DeletePath()
 {
 }
 
-char* Packet_RequestFile::toByteArray()
+char* Packet_DeletePath::toByteArray()
 {
     addToByteArray(path);
     writeHeader();
     return data;
 }
 
-bool Packet_RequestFile::read()
+bool Packet_DeletePath::read()
 {
     if (!Packet::read())
     {
         return false;
     }
     readFromByteArray(path);
+
     return true;
 }
 
-void Packet_RequestFile::exicute(Engine* engine)
+void Packet_DeletePath::exicute(Engine* engine)
 {
-    //read file
-    std::string fileData = engine->fileManager->getFileData(path);
-    //send file back
-    Packet_WriteFile* p = new Packet_WriteFile(path, fileData);
-    stream->write((Packet*)p);
-    delete p;
-}
-
-Packet_GetPaths::Packet_GetPaths(TCPStream* stream) : Packet(stream, 4)
-{
-}
-
-Packet_GetPaths::Packet_GetPaths() : Packet(4, 0)
-{
-}
-
-Packet_GetPaths::~Packet_GetPaths()
-{
-}
-
-//gets all the files being watched and sends them back to the socket that asked
-void Packet_GetPaths::exicute(Engine* engine)
-{
-    Packet_UpdatePaths* p = new Packet_UpdatePaths();
-    p->paths = engine->fileWatcher->getPaths();
-    stream->write((Packet*)p);
-    delete p;
-}
-
-
-Packet_UpdatePaths::Packet_UpdatePaths(TCPStream* stream) : Packet(stream, 5)
-{
-}
-
-Packet_UpdatePaths::Packet_UpdatePaths() : Packet(5, 1024)  //random guess at a large size
-{
-}
-
-Packet_UpdatePaths::~Packet_UpdatePaths()
-{
-}
-
-char* Packet_UpdatePaths::toByteArray()
-{
-    unsigned int numPaths;
-    unsigned int len = paths.size();
-    addToByteArray(&len, sizeof(len));
-    for (auto file : paths)
+    engine->fileManager->deleteFile(path);
+    engine->fileWatcher->deleteFile(path);
+    if (engine->tCPListener)
     {
-        addToByteArray(file);
+        Packet* p = new Packet_DeletePath(path);
+        engine->sendPacket(p, stream);
+        delete p;
     }
+}
 
+
+/*        PACKET_DIRECTORYDELETE         */
+
+
+Packet_DeleteDir::Packet_DeleteDir(TCPStream* stream) : Packet(stream,4)
+{
+}
+
+Packet_DeleteDir::Packet_DeleteDir(std::string path) : Packet(4, path.size() + INITIALPACKETSIZE + 10)
+{
+    this->path = path;
+}
+
+Packet_DeleteDir::~Packet_DeleteDir()
+{
+}
+
+char* Packet_DeleteDir::toByteArray()
+{
+    addToByteArray(path);
     writeHeader();
     return data;
 }
 
-bool Packet_UpdatePaths::read()
+bool Packet_DeleteDir::read()
 {
     if (!Packet::read())
     {
         return false;
     }
-    unsigned int numPaths;
-    readFromByteArray(&numPaths, sizeof(numPaths));
-    for (unsigned int i = 0; i < numPaths; i++)
-    {
-        std::string path;
-        readFromByteArray(path);
-        paths.push_back(path);
-    }
+    readFromByteArray(path);
+
     return true;
 }
 
-void Packet_UpdatePaths::exicute(Engine* engine)
+void Packet_DeleteDir::exicute(Engine* engine)
 {
-    for (std::string path : paths)
+    engine->fileManager->deleteDirectory(path);
+    engine->fileWatcher->deleteDirectory(path);
+    if (engine->tCPListener)
     {
-        std::cout << "update path " << path << std::endl;
+        Packet* p = new Packet_DeletePath(path);
+        engine->sendPacket(p, stream);
+        delete p;
     }
 }

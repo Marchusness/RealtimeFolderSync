@@ -21,11 +21,12 @@ class Packet_WriteFile : public Packet //2
 {
 private:
     std::string path;
-    std::string filedata;
+    char* filedata;
+    unsigned int filedatalen;
 
 public:
-    Packet_WriteFile(TCPStream* stream);    //read from socket constructor
-    Packet_WriteFile(std::string path, std::string data);                     //going to be sent on socket constructor
+    Packet_WriteFile(TCPStream* stream);                                                     //read from socket constructor
+    Packet_WriteFile(std::string path, char* data, unsigned int length);                     //going to be sent on socket constructor
     ~Packet_WriteFile();
 
     char* toByteArray();
@@ -33,45 +34,34 @@ public:
     void exicute(Engine* engine);
 };
 
-//request a file
-class Packet_RequestFile : public Packet //3
+//delete file
+class Packet_DeletePath : public Packet //3
 {
 private:
     std::string path;
 public:
-    Packet_RequestFile(TCPStream* stream);
-    Packet_RequestFile(std::string path);
-    ~Packet_RequestFile();
+    Packet_DeletePath(TCPStream* stream);
+    Packet_DeletePath(std::string path);
+    ~Packet_DeletePath();
 
     char* toByteArray();
     bool read();
     void exicute(Engine* engine);
 };
 
-//requests folder paths
-class Packet_GetPaths : public Packet //4
+//delete directory
+class Packet_DeleteDir : public Packet //4
 {
+private:
+    std::string path;
 public:
-    Packet_GetPaths(TCPStream* stream);
-    Packet_GetPaths();
-    ~Packet_GetPaths();
-
-    void exicute(Engine* engine);
-};
-
-//updates folder paths
-class Packet_UpdatePaths : public Packet //5
-{
-public:
-    Packet_UpdatePaths(TCPStream* stream);
-    Packet_UpdatePaths();
-    ~Packet_UpdatePaths();
+    Packet_DeleteDir(TCPStream* stream);
+    Packet_DeleteDir(std::string path);
+    ~Packet_DeleteDir();
 
     char* toByteArray();
     bool read();
     void exicute(Engine* engine);
-
-    std::vector<std::string> paths;
 };
 
 #endif

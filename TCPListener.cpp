@@ -22,7 +22,8 @@ TCPListener::TCPListener(int port)
     if (lisfd < 0)
     {
         std::cerr << "ERROR opening socket" << std::endl;
-        return;
+        fprintf(stderr, "%d %s\n", errno, strerror(errno));
+        exit(1);
     }
 
     memset(&serv_addr, 0, sizeof(serv_addr));
@@ -34,7 +35,8 @@ TCPListener::TCPListener(int port)
     if (bind(lisfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0)
     {
         std::cerr << "ERROR on binding" << std::endl;
-        return;
+        fprintf(stderr, "%d %s\n", errno, strerror(errno));
+        exit(1);
     }
 
     listen(lisfd, 5);
@@ -46,10 +48,12 @@ TCPListener::~TCPListener()
     {
         delete stream;
     }
+    ::close(lisfd);
 }
 
-void TCPListener::check()
+std::vector<TCPStream*> TCPListener::check()
 {
+    std::vector<TCPStream*> newStreams;
     //check for new connections
     struct sockaddr_in cli_addr;
     memset(&cli_addr, 0, sizeof(cli_addr));
@@ -59,8 +63,10 @@ void TCPListener::check()
     {
         std::cout << "accepted fd " << newsockfd << ", moved to port " << cli_addr.sin_port << std::endl;
         TCPStream* s = new TCPStream(newsockfd);
+        newStreams.push_back(s);
         streams.push_back(s);
     }
+    
     //check for data from existnig connections
     for (int i = 0; i < streams.size(); i++)
     {
@@ -80,6 +86,7 @@ void TCPListener::check()
             }
         }
     }
+    return newStreams;
 }
 
 Packet* TCPListener::getPacketInQueue()
@@ -88,6 +95,7 @@ Packet* TCPListener::getPacketInQueue()
     {
         Packet* p = packets.front();
         packets.pop();
+
         return p;
     }
     return nullptr;
@@ -98,5 +106,16 @@ void TCPListener::sendToAll(Packet* p)
     for (TCPStream* stream : streams)
     {
         stream->write(p);
+    }
+}
+
+void TCPListener::sendToAll(Packet* p, TCPStream* nstream)
+{
+    for (TCPStream* stream : streams)
+    {
+        if (stream != nstream)
+        {
+            stream->write(p);
+        }
     }
 }

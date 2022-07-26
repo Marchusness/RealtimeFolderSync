@@ -1,5 +1,10 @@
 .vscode/
+obj/*
 
+.DS_Store
 *.dll
 *.o
 *.gch
+run
+main
+unitTest

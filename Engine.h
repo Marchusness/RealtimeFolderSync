@@ -8,21 +8,23 @@ class Packet;
 
 class Engine
 {
-private:
-    /* data */
 public:
+    static Engine* engine;
     TCPListener* tCPListener;
     TCPStream* tCPStream;
     FileWatcher* fileWatcher;
     FileManager* fileManager;
+    bool running;
 
-    Engine(int port);
-    Engine(int port, std::string adress);
+    Engine(std::string path, int port);
+    Engine(std::string syncPath, int port, std::string address);
     ~Engine();
 
     void loop();
+    static void escapeHandler(int s);               //catches terminal control-c to handle closing sockets cleanly 
 
-    //this will be improved version 2
-    void sendPacket(Packet* p); //used to bridge listener and stream
+    void sendEntireFolder(TCPStream* stream);
+    void sendPacket(Packet* p);                     //used to bridge listener and stream
+    void sendPacket(Packet* p, TCPStream* stream);  //if server will ignore stream
     Packet* getPacket();
 };

@@ -2,20 +2,27 @@
 #define FILEMANAGER_H
 #include <iostream>
 #include <string.h>
+#include <vector>
+#include "FileWatcher.h"
+
+class Engine;
 
 class FileManager {
 public:
-    FileManager(std::string dirPath);
+    FileManager(Engine* engine, std::string dirPath);
+    
+    FileManager(std::string test);
 
-    // FileManager(std::string baseDirPath, std::string zipFilePath);
+    void writeFile(std::string path, char* data, unsigned int _dataLength);
 
-    void writeFile(std::string path, std::string data);
-
-    std::string getFileData(std::string path);
+    std::vector<char> getFileData(std::string path);
 
     void deleteFile(std::string path);
 
+    void deleteDirectory(std::string path);
+
 private:
+    Engine* engine;
     std::string dirPath;
 };
 
