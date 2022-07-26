@@ -29,7 +29,7 @@ int main(){
     std::vector<char> corrupt = fm.getFileData("./brew1.rtf");
 
     if (original == corrupt) {
-        std::cout << "well fuck it worked" << std::endl;
+        std::cout << "well it worked" << std::endl;
     } else {
         std::cout << "well it didnt work" << std::endl;
         std::string s(original.begin(), original.end());
