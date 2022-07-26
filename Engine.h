@@ -23,6 +23,7 @@ public:
     void loop();
     static void escapeHandler(int s);               //catches terminal control-c to handle closing sockets cleanly 
 
+    void sendEntireFolder(TCPStream* stream);
     void sendPacket(Packet* p);                     //used to bridge listener and stream
     void sendPacket(Packet* p, TCPStream* stream);  //if server will ignore stream
     Packet* getPacket();

@@ -74,15 +74,14 @@ void Engine::loop()
         return;
     }
 
-    //using an abstract class
-    anAbstractClass* a = fileManager;
-    a->printUselessInformation();
 
     running = true;
     while (running)
     {
         //do file checks
+        std::cout << "Before check" << std::endl;
         fileWatcher->check();
+        std::cout << "After check" << std::endl;
         FileWatcher::action a;
         while ((a = fileWatcher->getAction()).action != FileStatus::none)
         {
@@ -94,8 +93,13 @@ void Engine::loop()
                 sendPacket((Packet*)p);
                 delete p;
             }
-            if (a.action == FileStatus::erased){
+            else if (a.action == FileStatus::erased){
                 Packet_DeletePath* p = new Packet_DeletePath(a.path);
+                sendPacket((Packet*)p);
+                delete p;
+            }
+            else if (a.action == FileStatus::dirErased){
+                Packet_DeleteDir* p = new Packet_DeleteDir(a.path);
                 sendPacket((Packet*)p);
                 delete p;
             }
@@ -104,7 +108,11 @@ void Engine::loop()
         //do networking checks
         if (tCPListener)
         {
-            tCPListener->check();
+            std::vector<TCPStream*> newStreams = tCPListener->check();
+            for (TCPStream* newStream : newStreams)
+            {
+                engine->sendEntireFolder(newStream);
+            }
         }
         
         Packet* p;
@@ -114,6 +122,7 @@ void Engine::loop()
             delete p;
         }
 
+
         //pause
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
@@ -122,6 +131,18 @@ void Engine::loop()
 void Engine::escapeHandler(int s)
 {
     engine->running = false;
+}
+
+void Engine::sendEntireFolder(TCPStream* newStream)
+{
+    std::vector<std::string> filePaths = fileWatcher->getPaths();
+    for (std::string path : filePaths)
+    {
+        std::vector<char> filedata = fileManager->getFileData(path);
+        Packet_WriteFile* p = new Packet_WriteFile(path, filedata.data(), filedata.size());
+        newStream->write(p);        
+        delete p;
+    }
 }
 
 void Engine::sendPacket(Packet* p)
