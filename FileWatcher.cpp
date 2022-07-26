@@ -2,6 +2,8 @@
 #include <string.h>
 #include <filesystem>
 #include <unordered_map>
+#include <unordered_set>
+#include <queue>
 #include <thread>
 
 #include "FileWatcher.h"
@@ -17,49 +19,89 @@ bool FileWatcher::check() {
     auto it = files.begin();
     while (it != files.end()) {
         if (!std::filesystem::exists(it->first)) {
-            action a;
-            a.path = it->first;
-            a.path = a.path.erase(1,dirToWatch.length()-1);
-            a.action = FileStatus::erased;
-            changes.push(a);
-            it = files.erase(it);
-            changed = true;
+            std::filesystem::path path = it->first;
+            if (std::filesystem::exists(path.parent_path())){
+                action a;
+                a.path = it->first;
+                a.path = a.path.erase(1,dirToWatch.length()-1);
+                a.action = FileStatus::erased;
+                fileChanges.push(a);
+                it = files.erase(it);
+                changed = true;
+            } else {
+                it++;
+            }
         }
         else {
             it++;
         }                    
     }
     
-    for(auto &file : std::filesystem::recursive_directory_iterator(dirToWatch)) {
-        auto current_file_last_write_time = std::filesystem::last_write_time(file);
-
-        if (std::filesystem::is_regular_file(file.path())) {
-            if(files.find(file.path().string()) == files.end()) {
-                files[file.path().string()] = current_file_last_write_time;
-                action a;
-                a.path = file.path().string().erase(1,dirToWatch.length()-1);
-                a.action = FileStatus::created;
-                changes.push(a);
-                changed = true;
-            } else if(files[file.path().string()] != current_file_last_write_time) {
-                files[file.path().string()] = current_file_last_write_time;
-                action a;
-                a.path = file.path().string().erase(1,dirToWatch.length()-1);
-                a.action = FileStatus::modified;
-                changes.push(a);
-                changed = true;
+    if (!directories.empty()) {
+        for(auto it = directories.begin(); it != directories.end(); ) {
+            if (!std::filesystem::exists(*it)) {
+                std::filesystem::path path = *it;
+                if (std::filesystem::exists(path.parent_path())){
+                    dirDeletes.push(path.string().erase(1,dirToWatch.length()-1));
+                    it = directories.erase(it);
+                    changed = true;
+                } else {
+                    it++;
+                }                
             }
-        } 
+            else {
+                it++;
+            }
+        }
+    }
+    
+    try {
+        for(auto &file : std::filesystem::recursive_directory_iterator(dirToWatch)) {
+            if (std::filesystem::is_regular_file(file.path())) {
+                auto curFileLastWriteTime = std::filesystem::last_write_time(file);
+                if(files.find(file.path().string()) == files.end()) {
+                    files[file.path().string()] = curFileLastWriteTime;
+                    action a;
+                    a.path = file.path().string().erase(1,dirToWatch.length()-1);
+                    a.action = FileStatus::created;
+                    fileChanges.push(a);
+                    changed = true;
+                } else if(files[file.path().string()] != curFileLastWriteTime) {
+                    files[file.path().string()] = curFileLastWriteTime;
+                    action a;
+                    a.path = file.path().string().erase(1,dirToWatch.length()-1);
+                    a.action = FileStatus::modified;
+                    fileChanges.push(a);
+                    changed = true;
+                }
+            } 
+            else if (std::filesystem::is_directory(file.path())) {
+                directories.insert(file.path().string());
+            }
+        }
+    }
+    catch(std::filesystem::filesystem_error e)
+    {
+        std::cout << e.what() << std::endl;
     }
     return changed;
 }
 
 FileWatcher::action FileWatcher::getAction()
 {
-    if (changes.size() > 0)
+    if (!dirDeletes.empty())
     {
-        action a = changes.front();
-        changes.pop();
+        action a;
+        a.action = FileStatus::dirErased;
+        a.path = dirDeletes.front();
+        dirDeletes.pop();
+        return a;
+    }
+
+    if (!fileChanges.empty())
+    {
+        action a = fileChanges.front();
+        fileChanges.pop();
         return a;
     }
     else
@@ -75,7 +117,7 @@ std::vector<std::string> FileWatcher::getPaths()
     std::vector<std::string> filePaths;
     for (auto it : files)
     {
-        filePaths.push_back(it.first);
+        filePaths.push_back(std::string(it.first).erase(1,dirToWatch.length()-1));
     }
     return filePaths;
 }
@@ -86,6 +128,9 @@ void FileWatcher::updateFileTimes(std::string _path) {
 }
 
 void FileWatcher::deleteFile(std::string _path) {
-    std::filesystem::path path = _path;
-    files.erase(path.string());
+    files.erase(_path);
+}
+
+void FileWatcher::deleteDirectory(std::string _path) {
+    directories.erase(_path);
 }

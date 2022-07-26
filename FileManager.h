@@ -4,11 +4,10 @@
 #include <string.h>
 #include <vector>
 #include "FileWatcher.h"
-#include "anAbstractClass.h"
 
 class Engine;
 
-class FileManager : public anAbstractClass {
+class FileManager {
 public:
     FileManager(Engine* engine, std::string dirPath);
     
@@ -20,7 +19,7 @@ public:
 
     void deleteFile(std::string path);
 
-    void printUselessInformation();
+    void deleteDirectory(std::string path);
 
 private:
     Engine* engine;

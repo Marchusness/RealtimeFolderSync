@@ -23,17 +23,17 @@ void FileManager::writeFile(std::string _path, char* _data, unsigned int _dataLe
     path = dirPath + path;
 
     std::string directory = "";
-    std::string temp = "";
+    std::string cur = "";
     for(unsigned i = 0; i < path.length(); i++) {
         if (path.at(i) == '/') {
-            directory += temp;
+            directory += cur;
             std::filesystem::create_directory(directory);
-            temp = "";
+            cur = "";
         }
-        temp += path.at(i);
+        cur += path.at(i);
     }
 
-    if (temp.at(1) != '.') {
+    if (cur.at(1) != '.') {
         std::ofstream(path, std::ios::binary).write(_data, _dataLength);
 
         engine->fileWatcher->updateFileTimes(path);
@@ -50,8 +50,9 @@ std::vector<char> FileManager::getFileData(std::string _path) {
     std::ifstream input(path, std::ios::binary);
 
     std::vector<char> bytes(
-         (std::istreambuf_iterator<char>(input)),
-         (std::istreambuf_iterator<char>()));
+        (std::istreambuf_iterator<char>(input)),
+        (std::istreambuf_iterator<char>())
+    );
 
     input.close();
 
@@ -62,10 +63,12 @@ void FileManager::deleteFile(std::string _path) {
     std::string path = _path;
     path.erase(0,1);
     path = dirPath + path;
-    remove( path.c_str() );
+    std::filesystem::remove( path.c_str() );
 }
 
-void FileManager::printUselessInformation()
-{
-    std::cout << "the path is " << dirPath << std::endl;
+void FileManager::deleteDirectory(std::string _path){
+    std::string path = _path;
+    path.erase(0,1);
+    path = dirPath + path;
+    std::filesystem::remove_all( path.c_str() );
 }
