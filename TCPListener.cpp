@@ -51,8 +51,9 @@ TCPListener::~TCPListener()
     ::close(lisfd);
 }
 
-void TCPListener::check()
+std::vector<TCPStream*> TCPListener::check()
 {
+    std::vector<TCPStream*> newStreams;
     //check for new connections
     struct sockaddr_in cli_addr;
     memset(&cli_addr, 0, sizeof(cli_addr));
@@ -62,6 +63,7 @@ void TCPListener::check()
     {
         std::cout << "accepted fd " << newsockfd << ", moved to port " << cli_addr.sin_port << std::endl;
         TCPStream* s = new TCPStream(newsockfd);
+        newStreams.push_back(s);
         streams.push_back(s);
     }
     
@@ -84,6 +86,7 @@ void TCPListener::check()
             }
         }
     }
+    return newStreams;
 }
 
 Packet* TCPListener::getPacketInQueue()
