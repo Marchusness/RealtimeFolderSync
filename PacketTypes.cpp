@@ -125,3 +125,50 @@ void Packet_DeletePath::exicute(Engine* engine)
         delete p;
     }
 }
+
+
+/*        PACKET_DIRECTORYDELETE         */
+
+
+Packet_DeleteDir::Packet_DeleteDir(TCPStream* stream) : Packet(stream,4)
+{
+}
+
+Packet_DeleteDir::Packet_DeleteDir(std::string path) : Packet(4, path.size() + INITIALPACKETSIZE + 10)
+{
+    this->path = path;
+}
+
+Packet_DeleteDir::~Packet_DeleteDir()
+{
+}
+
+char* Packet_DeleteDir::toByteArray()
+{
+    addToByteArray(path);
+    writeHeader();
+    return data;
+}
+
+bool Packet_DeleteDir::read()
+{
+    if (!Packet::read())
+    {
+        return false;
+    }
+    readFromByteArray(path);
+
+    return true;
+}
+
+void Packet_DeleteDir::exicute(Engine* engine)
+{
+    engine->fileManager->deleteDirectory(path);
+    engine->fileWatcher->deleteDirectory(path);
+    if (engine->tCPListener)
+    {
+        Packet* p = new Packet_DeletePath(path);
+        engine->sendPacket(p, stream);
+        delete p;
+    }
+}

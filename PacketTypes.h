@@ -49,4 +49,19 @@ public:
     void exicute(Engine* engine);
 };
 
+//delete directory
+class Packet_DeleteDir : public Packet //4
+{
+private:
+    std::string path;
+public:
+    Packet_DeleteDir(TCPStream* stream);
+    Packet_DeleteDir(std::string path);
+    ~Packet_DeleteDir();
+
+    char* toByteArray();
+    bool read();
+    void exicute(Engine* engine);
+};
+
 #endif
