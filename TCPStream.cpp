@@ -13,6 +13,7 @@
 #include "Packet.h"
 #include "PacketTypes.h"
 
+#define maxPacketSize 1000
 
 TCPStream::TCPStream(int sockfd)
 {
@@ -72,17 +73,18 @@ int TCPStream::write(void* buf, int len)
 int TCPStream::read(void* buf, int len)
 {
     return ::read(sockfd, buf, len);
+    // read(sockfd, buf, len);
 }
 
 void TCPStream::write(Packet* packet)
 {
     char* data = packet->toByteArray();
     unsigned int length = packet->getDataSize();
- 
     unsigned int dataWritten = 0;
     while (dataWritten < length)
     {
-        dataWritten += write(data + dataWritten, length - dataWritten);
+        int curWritten = write(data + dataWritten, length - dataWritten);
+        dataWritten += curWritten > 0 ? curWritten : 0;
     }
 }
 
@@ -111,6 +113,10 @@ Packet* TCPStream::tryReadPacket()
         else if (type == 3)
         {
             p = new Packet_DeletePath(this);
+        }
+        else if (type == 4)
+        {
+            p = new Packet_DeleteDir(this);
         }
         else
         {
