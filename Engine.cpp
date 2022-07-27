@@ -79,9 +79,7 @@ void Engine::loop()
     while (running)
     {
         //do file checks
-        std::cout << "Before check" << std::endl;
         fileWatcher->check();
-        std::cout << "After check" << std::endl;
         FileWatcher::action a;
         while ((a = fileWatcher->getAction()).action != FileStatus::none)
         {
