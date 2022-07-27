@@ -29,7 +29,7 @@ bool FileWatcher::check() {
                 it = files.erase(it);
                 changed = true;
             } else {
-                it++;
+                it = files.erase(it);
             }
         }
         else {
