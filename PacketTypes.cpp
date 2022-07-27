@@ -172,3 +172,75 @@ void Packet_DeleteDir::exicute(Engine* engine)
         delete p;
     }
 }
+
+
+/*         PACKET_WRITEPARTIAL         */
+
+
+Packet_PartialWrite::Packet_PartialWrite(TCPStream* stream) : Packet(stream, 5)
+{
+}
+
+Packet_PartialWrite::Packet_PartialWrite(std::string path, unsigned int fileSize, unsigned int dataSize, char* data, unsigned int packetNumber) : Packet(5, path.size() + dataSize + INITIALPACKETSIZE + 20)
+{
+    this->path = path;
+    this->fileSize = fileSize;
+    this->dataSize = dataSize;
+    this->packetNumber = packetNumber;
+    partialData = new char[dataSize];
+    memcpy(partialData, data, dataSize);
+}
+
+Packet_PartialWrite::~Packet_PartialWrite()
+{
+    //this should cause a memory leak having it commented but adding it back causes a double free
+    //delete[] partialData;
+}
+
+char* Packet_PartialWrite::toByteArray()
+{
+    addToByteArray(path);
+    addToByteArray(&fileSize, sizeof(fileSize));
+    addToByteArray(&dataSize, sizeof(dataSize));
+    addToByteArray(&packetNumber, sizeof(packetNumber));
+    addToByteArray(partialData, dataSize);
+    writeHeader();
+    return data;
+}
+
+bool Packet_PartialWrite::read()
+{
+    if (!Packet::read())
+    {
+        return false;
+    }
+    readFromByteArray(path);
+    readFromByteArray(&fileSize, sizeof(fileSize));
+    readFromByteArray(&dataSize, sizeof(dataSize));
+    readFromByteArray(&packetNumber, sizeof(packetNumber));
+    partialData = new char[dataSize];
+    readFromByteArray(partialData, dataSize);
+
+    return true;
+}
+
+void Packet_PartialWrite::exicute(Engine* engine)
+{
+    if (packetNumber == 0)
+    {
+        engine->fileManager->deleteFile(path);
+    }
+    
+    engine->fileManager->writePartialFile(path, fileSize, dataSize, partialData);
+    if (engine->tCPListener)
+    {
+        Packet* p = new Packet_PartialWrite(path, fileSize, dataSize, data, packetNumber);
+        engine->tCPListener->sendToAll(p, stream);
+        delete p;
+    }
+}
+
+unsigned int Packet_PartialWrite::getPacketNumber()
+{
+    return packetNumber;
+}

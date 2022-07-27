@@ -64,4 +64,26 @@ public:
     void exicute(Engine* engine);
 };
 
+//write partially
+class Packet_PartialWrite : public Packet //5
+{
+private:
+    std::string path;
+    unsigned int fileSize;
+    unsigned int dataSize;
+    unsigned int packetNumber;
+    char* partialData;
+
+public:
+    Packet_PartialWrite(TCPStream* stream);
+    Packet_PartialWrite(std::string path, unsigned int fileSize, unsigned int dataSize, char* data, unsigned int packetNumber);
+    ~Packet_PartialWrite();
+
+    char* toByteArray();
+    bool read();
+    void exicute(Engine* engine);
+
+    unsigned int getPacketNumber();
+};
+
 #endif

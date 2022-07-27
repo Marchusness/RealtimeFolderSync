@@ -10,7 +10,9 @@
 0 something
 1 connection closed
 2 write file
-3 delete file
+3 delete path
+4 delete directory
+5 write partial
 */
 
 class TCPStream;

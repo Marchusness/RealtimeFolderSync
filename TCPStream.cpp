@@ -73,7 +73,6 @@ int TCPStream::write(void* buf, int len)
 int TCPStream::read(void* buf, int len)
 {
     return ::read(sockfd, buf, len);
-    // read(sockfd, buf, len);
 }
 
 void TCPStream::write(Packet* packet)
@@ -117,6 +116,10 @@ Packet* TCPStream::tryReadPacket()
         else if (type == 4)
         {
             p = new Packet_DeleteDir(this);
+        }
+        else if (type == 5)
+        {
+            p = new Packet_PartialWrite(this);
         }
         else
         {

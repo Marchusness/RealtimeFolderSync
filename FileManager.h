@@ -15,6 +15,8 @@ public:
 
     void writeFile(std::string path, char* data, unsigned int _dataLength);
 
+    void writePartialFile(std::string path, unsigned int fileSize, unsigned int dataSize, char* data);
+
     std::vector<char> getFileData(std::string path);
 
     void deleteFile(std::string path);

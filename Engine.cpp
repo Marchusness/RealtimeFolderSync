@@ -2,6 +2,8 @@
 #include <thread>
 #include <signal.h>
 #include <stdlib.h>
+#include <iostream>
+#include <fstream>
 
 #include "Engine.h"
 #include "FileManager.h"
@@ -48,6 +50,7 @@ Engine::Engine(std::string syncPath, int port, std::string address)
     }
 
     tCPStream = TCPStream::connectTo(address.c_str(), port);
+    tCPListener = nullptr;
     fileWatcher = new FileWatcher(this, syncPath);
     fileManager = new FileManager(this, syncPath);
 }
@@ -79,17 +82,23 @@ void Engine::loop()
     while (running)
     {
         //do file checks
+        //std::cout << "Before check" << std::endl;
         fileWatcher->check();
+        //std::cout << "After check" << std::endl;
         FileWatcher::action a;
         while ((a = fileWatcher->getAction()).action != FileStatus::none)
         {
             //a change occoured
             if (a.action == FileStatus::created || a.action == FileStatus::modified)
             {
+                sendPartialFile(a.path, 1000); //1000 is max size to send at once, chosen randomly
+                
+                /*
                 std::vector<char> filedata = fileManager->getFileData(a.path);
                 Packet_WriteFile* p = new Packet_WriteFile(a.path, filedata.data(), filedata.size());
                 sendPacket((Packet*)p);
                 delete p;
+                */
             }
             else if (a.action == FileStatus::erased){
                 Packet_DeletePath* p = new Packet_DeletePath(a.path);
@@ -102,7 +111,6 @@ void Engine::loop()
                 delete p;
             }
         }
-        
         //do networking checks
         if (tCPListener)
         {
@@ -112,14 +120,12 @@ void Engine::loop()
                 engine->sendEntireFolder(newStream);
             }
         }
-        
         Packet* p;
         while ((p = getPacket()))
         {
             p->exicute(this);
             delete p;
         }
-
 
         //pause
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -138,9 +144,27 @@ void Engine::sendEntireFolder(TCPStream* newStream)
     {
         std::vector<char> filedata = fileManager->getFileData(path);
         Packet_WriteFile* p = new Packet_WriteFile(path, filedata.data(), filedata.size());
-        newStream->write(p);        
+        newStream->write(p);
         delete p;
     }
+}
+
+void Engine::sendPartialFile(std::string path, unsigned int maxSize)
+{
+    std::ifstream file;
+    file.open(path, std::ios::binary);
+    file.seekg(0, std::ios::end);
+    unsigned int totalFileSize = file.tellg();
+    file.seekg(0, std::ios::beg);
+    char data[maxSize];
+    unsigned int sizeRead = 0;
+    unsigned int num = 0;
+    while ((sizeRead = file.readsome(data, maxSize)) > 0)
+    {
+        Packet_PartialWrite p(path, totalFileSize, sizeRead, data, num++);
+        sendPacket(&p);
+    }
+    file.close();
 }
 
 void Engine::sendPacket(Packet* p)
@@ -169,7 +193,6 @@ void Engine::sendPacket(Packet* p, TCPStream* stream)
 
 Packet* Engine::getPacket()
 {
-
     if (tCPListener)
     {
         return tCPListener->getPacketInQueue();
