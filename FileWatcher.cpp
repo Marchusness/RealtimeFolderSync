@@ -26,11 +26,9 @@ bool FileWatcher::check() {
                 a.path = a.path.erase(1,dirToWatch.length()-1);
                 a.action = FileStatus::erased;
                 fileChanges.push(a);
-                it = files.erase(it);
                 changed = true;
-            } else {
-                it = files.erase(it);
             }
+            it = files.erase(it);
         }
         else {
             it++;
@@ -43,11 +41,9 @@ bool FileWatcher::check() {
                 std::filesystem::path path = *it;
                 if (std::filesystem::exists(path.parent_path())){
                     dirDeletes.push(path.string().erase(1,dirToWatch.length()-1));
-                    it = directories.erase(it);
                     changed = true;
-                } else {
-                    it++;
-                }                
+                }
+                it = directories.erase(it);             
             }
             else {
                 it++;

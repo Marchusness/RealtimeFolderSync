@@ -40,7 +40,6 @@ private:
 
     std::unordered_map<std::string, std::filesystem::file_time_type> files;
     std::unordered_set<std::string> directories;
-    // std::vector<std::string> directories;
 };
 
 #endif
